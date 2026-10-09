@@ -24,6 +24,12 @@ var allCharts = {};
  Make some colours:
  */
 var colourSet = [
+    [43, 127, 166], // chart-1, blue
+    [52, 179, 160], // chart-2, teal
+    [242, 163, 58], // chart-3, amber
+    [139, 124, 246], // chart-4, violet
+    [240, 106, 127], // chart-5, rose
+    [161, 161, 170], // chart-6, zinc
     [53, 124, 165],
     [0, 141, 76], // green
     [219, 139, 11],
@@ -54,20 +60,95 @@ Chart.defaults.global.animation.duration = 0;
 Chart.defaults.global.responsive = true;
 Chart.defaults.global.maintainAspectRatio = false;
 
+/*
+ Look & feel that matches the theme tokens (sass/theme/_tokens.scss):
+ smooth lines, no points until hover, dashed grid and a card-like tooltip.
+ */
+function themeColor(name, fallback) {
+    var value = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    return '' === value ? fallback : value;
+}
+
+(function () {
+    "use strict";
+    var muted = themeColor('--ff-muted-foreground', '#71717a');
+    var border = themeColor('--ff-border', '#e4e4e7');
+    var foreground = themeColor('--ff-foreground', '#09090b');
+    var popover = themeColor('--ff-popover', '#ffffff');
+    var card = themeColor('--ff-card', '#ffffff');
+
+    Chart.defaults.global.defaultFontFamily = getComputedStyle(document.body).fontFamily;
+    Chart.defaults.global.defaultFontColor = muted;
+    Chart.defaults.global.defaultFontSize = 12;
+    Chart.defaults.global.hover.mode = 'index';
+    Chart.defaults.global.hover.intersect = false;
+
+    Chart.defaults.global.elements.line.tension = 0.4;
+    Chart.defaults.global.elements.line.borderWidth = 2.5;
+    Chart.defaults.global.elements.line.borderCapStyle = 'round';
+    Chart.defaults.global.elements.point.radius = 0;
+    Chart.defaults.global.elements.point.hoverRadius = 5;
+    Chart.defaults.global.elements.point.hitRadius = 8;
+    Chart.defaults.global.elements.point.hoverBorderWidth = 2;
+    Chart.defaults.global.elements.rectangle.borderWidth = 0;
+    Chart.defaults.global.elements.arc.borderWidth = 2;
+    Chart.defaults.global.elements.arc.borderColor = card;
+
+    Chart.defaults.global.tooltips.mode = 'index';
+    Chart.defaults.global.tooltips.intersect = false;
+    Chart.defaults.global.tooltips.backgroundColor = popover;
+    Chart.defaults.global.tooltips.titleFontColor = foreground;
+    Chart.defaults.global.tooltips.bodyFontColor = foreground;
+    Chart.defaults.global.tooltips.footerFontColor = muted;
+    Chart.defaults.global.tooltips.borderColor = border;
+    Chart.defaults.global.tooltips.borderWidth = 1;
+    Chart.defaults.global.tooltips.xPadding = 10;
+    Chart.defaults.global.tooltips.yPadding = 10;
+    Chart.defaults.global.tooltips.cornerRadius = 8;
+    Chart.defaults.global.tooltips.caretSize = 0;
+    Chart.defaults.global.tooltips.multiKeyBackground = 'transparent';
+
+    Chart.defaults.global.legend.labels.usePointStyle = true;
+    Chart.defaults.global.legend.labels.boxWidth = 8;
+
+    Chart.defaults.scale.gridLines.color = border;
+    Chart.defaults.scale.gridLines.zeroLineColor = border;
+    Chart.defaults.scale.gridLines.borderDash = [3, 3];
+    Chart.defaults.scale.gridLines.drawBorder = false;
+    Chart.defaults.scale.gridLines.drawTicks = false;
+    Chart.defaults.scale.ticks.padding = 8;
+})();
+
 /**
  *
  * @param data
  * @returns {{}}
  */
-function colorizeData(data) {
+function colorizeData(data, chartType, ctx) {
     var newData = {};
     newData.datasets = [];
+    var card = themeColor('--ff-card', '#ffffff');
 
     for (var loop = 0; loop < data.count; loop++) {
         newData.labels = data.labels;
         var dataset = data.datasets[loop];
+        var colour = colourSet[loop % colourSet.length];
+        var solid = "rgb(" + colour[0] + ", " + colour[1] + ", " + colour[2] + ")";
+        dataset.borderColor = solid;
+        dataset.pointBackgroundColor = solid;
+        dataset.pointHoverBackgroundColor = solid;
+        dataset.pointHoverBorderColor = card;
+        dataset.backgroundColor = solid;
         dataset.fill = false;
-        dataset.backgroundColor = dataset.borderColor = fillColors[loop];
+
+        // line charts with only a few lines get a soft gradient below the line.
+        if ('line' === chartType && data.count <= 3 && ctx) {
+            var gradient = ctx.createLinearGradient(0, 0, 0, ctx.canvas.clientHeight || 300);
+            gradient.addColorStop(0, "rgba(" + colour[0] + ", " + colour[1] + ", " + colour[2] + ", 0.28)");
+            gradient.addColorStop(1, "rgba(" + colour[0] + ", " + colour[1] + ", " + colour[2] + ", 0)");
+            dataset.backgroundColor = gradient;
+            dataset.fill = 'origin';
+        }
         newData.datasets.push(dataset);
     }
     return newData;
@@ -314,6 +395,7 @@ function pieChart(URL, container) {
 
     var colorData = false;
     var options = $.extend(true, {}, defaultPieOptions);
+    options.cutoutPercentage = 68;
     var chartType = 'pie';
 
     drawAChart(URL, container, chartType, options, colorData);
@@ -330,6 +412,7 @@ function multiCurrencyPieChart(URL, container) {
 
     var colorData = false;
     var options = $.extend(true, {}, pieOptionsWithCurrency);
+    options.cutoutPercentage = 68;
     var chartType = 'pie';
 
     drawAChart(URL, container, chartType, options, colorData);
@@ -396,7 +479,7 @@ function drawAChart(URL, container, chartType, options, colorData) {
         }
 
         if (colorData) {
-            data = colorizeData(data);
+            data = colorizeData(data, chartType, document.getElementById(container).getContext("2d"));
         }
 
         if (allCharts.hasOwnProperty(container)) {

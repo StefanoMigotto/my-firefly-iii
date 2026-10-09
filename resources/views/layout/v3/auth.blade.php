@@ -16,8 +16,8 @@
     <base href="{{ route('index', null, true) }}/">
     <title>{{ __('firefly.login_page_title')  }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes"/>
-    <meta name="theme-color" content="#007bff" media="(prefers-color-scheme: light)"/>
-    <meta name="theme-color" content="#1a1a1a" media="(prefers-color-scheme: dark)"/>
+    <meta name="theme-color" content="#fafafa" media="(prefers-color-scheme: light)"/>
+    <meta name="theme-color" content="#09090b" media="(prefers-color-scheme: dark)"/>
     <meta name="color-scheme" content="light dark">
     @vite(['sass/app.scss'])
     <x-layout.fav-icons-clean />
@@ -31,10 +31,8 @@
 <body class="login-page bg-body-secondary">
 <div class="login-box">
     <div class="login-logo">
-        @if(true=== ($IS_DEMO_SITE ?? false))
-            <img src="images/logo-session.png" width="68" height="100" alt="Logo" title="Logo"/><br>
-            <a href="{{ route('index', null, true) }}"><strong>Firefly</strong> III</a>
-        @endif
+        <img src="images/logo-session.png" width="34" height="50" alt="" aria-hidden="true"/>
+        <a href="{{ route('index', null, true) }}">Firefly III</a>
     </div>
     @yield('content')
 </div>

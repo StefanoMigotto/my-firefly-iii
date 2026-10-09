@@ -19,7 +19,7 @@
                     </div>
                 </div>
                 <div class="d-print-none card-footer text-end">
-                    <a href="{{ route('accounts.index',['asset']) }}" class="btn btn-primary btn-sm"><span
+                    <a href="{{ route('accounts.index',['asset']) }}" class="btn btn-outline-secondary btn-sm"><span
                             class="bi bi-cash"></span> {{ __('firefly.go_to_asset_accounts') }}</a>
                 </div>
             </div>
@@ -42,7 +42,7 @@
                     -->
                 </div>
                 <div class="card-footer text-end d-print-none">
-                    <a href="{{ route('budgets.index') }}" class="btn btn-primary btn-sm">
+                    <a href="{{ route('budgets.index') }}" class="btn btn-outline-secondary btn-sm">
                         <span class="bi bi-pie-chart"></span>
                         <span>{{ __('firefly.go_to_budgets') }}</span>
                     </a>
@@ -60,7 +60,7 @@
                     <canvas id="categories-chart" class="wide-chart" height="400" width="100%"></canvas>
                 </div>
                 <div class="card-footer text-end d-print-none">
-                    <a href="{{ route('categories.index') }}" class="btn btn-primary btn-sm">
+                    <a href="{{ route('categories.index') }}" class="btn btn-outline-secondary btn-sm">
                         <span class="bi bi-bookmark"></span>
                         <span>{{ __('firefly.go_to_categories') }}</span>
                     </a>
@@ -94,7 +94,7 @@
                     <div class="card-footer d-print-none">
                         <div class="row">
                             <div class="col-6">
-                                <button type="button" class="btn btn-primary btn-sm dropdown-toggle"
+                                <button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle"
                                         data-bs-toggle="dropdown"
                                         aria-expanded="false">{{ __('firefly.sidebar_frontpage_create') }}</button>
                                 <ul class="dropdown-menu">
@@ -113,7 +113,7 @@
                                 </ul>
                             </div>
                             <div class="col-6 text-end">
-                                <button type="button" class="btn btn-primary btn-sm dropdown-toggle"
+                                <button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle"
                                         data-bs-toggle="dropdown" aria-expanded="false">
                                     {{ account_balance($data['account']) }}
                                 </button>
@@ -155,7 +155,7 @@
                         </div>
                     </div>
                     <div class="card-footer text-end d-print-none">
-                        <a href="{{ route('bills.index') }}" class="btn  btn-primary btn-sm"><span
+                        <a href="{{ route('bills.index') }}" class="btn btn-outline-secondary btn-sm"><span
                                 class="bi bi-calendar"></span> {{ __('firefly.go_to_bills') }}</a>
                     </div>
                 </div>
@@ -203,7 +203,7 @@
                     </div>
                     <div class="card-footer text-end d-print-none">
                         <a href="{{ route('piggy-banks.index') }}" title="{{ __('firefly.go_to_piggies') }}"
-                           class="btn btn-primary btn-sm"><span
+                           class="btn btn-outline-secondary btn-sm"><span
                                 class="bi bi-bullseye"></span> {{ __('firefly.go_to_piggies') }}</a>
                     </div>
                 </div>
@@ -224,7 +224,7 @@
                             width="100%"></canvas>
                 </div>
                 <div class="card-footer text-end d-print-none">
-                    <a href="{{ route('accounts.index', ['expense']) }}" class="btn btn-primary btn-sm"><span
+                    <a href="{{ route('accounts.index', ['expense']) }}" class="btn btn-outline-secondary btn-sm"><span
                             class="bi bi-cart"></span> {{ __('firefly.go_to_expense_accounts') }}</a>
                 </div>
             </div>
@@ -241,7 +241,7 @@
                             width="100%"></canvas>
                 </div>
                 <div class="card-footer text-end d-print-none">
-                    <a href="{{ route('accounts.index', ['revenue']) }}" class="btn btn-primary btn-sm"><span
+                    <a href="{{ route('accounts.index', ['revenue']) }}" class="btn btn-outline-secondary btn-sm"><span
                             class="bi bi-box-arrow-down"></span> {{ __('firefly.go_to_revenue_accounts') }}</a>
                 </div>
             </div>

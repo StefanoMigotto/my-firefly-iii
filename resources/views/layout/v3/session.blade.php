@@ -51,9 +51,9 @@
     <!--end::Theme Init-->
 
     <!--begin::Accessibility Meta Tags-->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <meta name="theme-color" content="#007bff" media="(prefers-color-scheme: light)">
-    <meta name="theme-color" content="#1a1a1a" media="(prefers-color-scheme: dark)">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#09090b" media="(prefers-color-scheme: dark)">
     <!--end::Accessibility Meta Tags-->
 
     <!--begin::Accessibility Features-->
@@ -77,7 +77,7 @@
 </head>
 <!--end::Head-->
 <!--begin::Body-->
-<body class="layout-fixed sidebar-mini sidebar-expand-lg sidebar-without-hover bg-body-tertiary">
+<body class="layout-fixed fixed-header sidebar-mini sidebar-expand-lg sidebar-without-hover bg-body-tertiary">
 {{-- this entry is in the header so it's loaded early --}}
 <script type="text/javascript" nonce="{{ $JS_NONCE }}">
     var forceDemoOff = false;
@@ -97,7 +97,7 @@
             <ul class="navbar-nav">
                 <li class="nav-item">
                     <a class="nav-link" data-lte-toggle="sidebar" href="#" role="button">
-                        <i class="bi bi-list"></i>
+                        <i class="bi bi-layout-sidebar"></i>
                     </a>
                 </li>
             </ul>
@@ -216,7 +216,7 @@
     </nav>
     <!--end::Header-->
     <!--begin::Sidebar-->
-    <aside class="app-sidebar bg-body-secondary shadow">
+    <aside class="app-sidebar">
         <!--begin::Sidebar Brand-->
         <div class="sidebar-brand">
             <!--begin::Brand Link-->
@@ -225,11 +225,11 @@
                 <img
                     src="./images/logo-session.png"
                     alt="Firefly III"
-                    class="brand-image opacity-75"
+                    class="brand-image"
                 >
                 <!--end::Brand Image-->
                 <!--begin::Brand Text-->
-                <span class="brand-text fw-light">Firefly III</span>
+                <span class="brand-text">Firefly III</span>
                 <!--end::Brand Text-->
             </a>
             <!--end::Brand Link-->
@@ -319,6 +319,7 @@
         </div>
         </div>
     </main>
+    <x-layout.bottom-nav/>
     <footer class="app-footer">
         <div class="float-end d-none d-sm-inline">
             <a href="{{route('debug')}}">v{{ $FF_VERSION }}</a>
@@ -434,7 +435,7 @@
 </form>
 
 <div class="modal fade" tabindex="-1" role="dialog" id="customDateRangeModal" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
         <form action="{{ route('daterange') }}?redirect=true" method="POST" id="daterange-form">
             <input name="_token" type="hidden" value="{{ csrf_token() }}">
             <input type="hidden" name="start" value="" id="customStart"/>
@@ -468,28 +469,31 @@
                             }
 
                             &::part(button) {
-                                border: 1px solid #adb5bd;
-                                border-radius: 3px;
-                                width: 26px;
-                                height: 26px;
+                                border: 1px solid var(--ff-input);
+                                border-radius: var(--ff-radius-sm);
+                                width: 32px;
+                                height: 32px;
                             }
 
                             &::part(button):focus-visible {
-                                outline: 2px solid #1E6581;
+                                outline: 2px solid var(--ff-primary);
                             }
                         }
 
                         calendar-month {
-                            --color-accent: #1E6581;
-                            --color-text-on-accent: #ffffff;
+                            --color-accent: var(--ff-primary);
+                            --color-text-on-accent: var(--ff-primary-foreground);
 
                             &::part(button) {
-                                border-radius: 3px;
+                                border-radius: var(--ff-radius-sm);
+                                width: 2.25rem;
+                                height: 2.25rem;
                             }
 
                             &::part(range-inner) {
                                 border-radius: 0;
-                                background-color: #2885AA;
+                                background-color: color-mix(in oklab, var(--ff-primary) 18%, transparent);
+                                color: var(--ff-foreground);
                             }
 
                             &::part(range-start) {
@@ -503,7 +507,7 @@
                             }
 
                             &::part(range-start range-end) {
-                                border-radius: 3px;
+                                border-radius: var(--ff-radius-sm);
                             }
                         }
                     </style>
@@ -527,7 +531,7 @@
                                     <path d="m8.25 4.5 7.5 7.5-7.5 7.5"></path>
                                 </svg>
                                 <calendar-month></calendar-month>
-                                <calendar-month offset="1"></calendar-month>
+                                <calendar-month offset="1" class="d-none d-md-block"></calendar-month>
                             </calendar-range>
                         </div>
                     </div>
@@ -545,7 +549,7 @@
 </div>
 
 <div class="modal fade" tabindex="-1" role="dialog" id="helpModal">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title" id="helpTitle">&nbsp;</h4>
@@ -564,6 +568,15 @@
         </div>
     </div>
 </div>
+<script nonce="{{ $JS_NONCE }}">
+    (() => {
+        'use strict';
+        const calendar = document.getElementById('customDateRangeCalendar');
+        if (calendar && globalThis.matchMedia('(max-width: 767.98px)').matches) {
+            calendar.setAttribute('months', '1');
+        }
+    })();
+</script>
 <x-layout.tracking />
 
 @if('' !== config('firefly.tracker_site_id') && '' !== config('firefly.tracker_url'))

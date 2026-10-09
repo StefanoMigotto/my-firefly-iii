@@ -90,6 +90,7 @@ var defaultChartOptions = {
         yAxes: [{
             display: true,
             ticks: {
+                maxTicksLimit: 5,
                 callback: function (tickValue) {
                     "use strict";
                     if (anonymous) {

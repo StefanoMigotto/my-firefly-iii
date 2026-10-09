@@ -1,0 +1,332 @@
+/*!
+ * _mobile.scss
+ * Copyright (c) 2026 james@firefly-iii.org
+ *
+ * This file is part of Firefly III (https://github.com/firefly-iii).
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+// Smartphone and tablet usability. Breakpoints follow Bootstrap:
+// sm 576px, md 768px, lg 992px (the sidebar collapses below lg).
+
+// Bootstrap 5 has no "xs" display utilities, but many templates use
+// "d-xs-none" to hide less important columns on phones.
+@media (max-width: 575.98px) {
+    .d-xs-none {
+        display: none !important;
+    }
+}
+
+// ---------- transaction lists ----------
+.tx-meta {
+    display: block;
+    margin-top: 0.125rem;
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: var(--ff-muted-foreground);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    a {
+        color: inherit !important;
+    }
+}
+
+.tx-type-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 999px;
+    background-color: var(--ff-muted);
+    color: var(--ff-foreground);
+    font-size: 0.875rem;
+}
+
+.tx-list {
+    .tx-col-desc {
+        font-weight: 500;
+    }
+
+    .tx-col-amount {
+        white-space: nowrap;
+        font-weight: 500;
+    }
+
+    .tx-col-balance,
+    .tx-col-date {
+        white-space: nowrap;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .tx-list {
+        > thead > tr.tx-head {
+            display: none;
+        }
+
+        > :not(caption) > * > * {
+            padding-top: 0.75rem;
+            padding-bottom: 0.75rem;
+        }
+
+        .tx-col-icon {
+            width: 2.75rem;
+            padding-right: 0 !important;
+        }
+
+        .tx-col-desc {
+            max-width: 0;
+            width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-size: 0.9375rem;
+        }
+
+        .tx-col-amount {
+            font-size: 0.9375rem;
+            font-weight: 600;
+            vertical-align: top;
+        }
+    }
+}
+
+// ---------- layout below the sidebar breakpoint ----------
+@media (max-width: 991.98px) {
+    .app-wrapper {
+        padding-bottom: calc(var(--ff-bottom-nav-height) + var(--ff-safe-bottom));
+    }
+
+    .app-main {
+        background-color: var(--ff-page);
+    }
+
+    [data-bs-theme="light"] .app-main {
+        background-color: #f7f7f8;
+    }
+
+    .app-header {
+        position: sticky;
+        top: 0;
+        z-index: 1030;
+
+        .container-fluid {
+            padding-left: 0.5rem;
+            padding-right: 0.5rem;
+        }
+    }
+
+    .ff-header-title {
+        font-size: 1rem;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 40vw;
+    }
+
+    .app-content-header {
+        padding: 1rem 0.25rem 0.25rem;
+
+        h3 {
+            font-size: 1.375rem;
+        }
+
+        .breadcrumb {
+            display: none;
+        }
+    }
+
+    .app-content {
+        padding: 0.25rem 0.25rem 1rem;
+    }
+
+    .app-footer {
+        text-align: center;
+        padding: 0.75rem 1rem;
+
+        .float-end {
+            float: none !important;
+        }
+    }
+
+    // the sidebar slides over the content
+    .app-sidebar {
+        z-index: 1040;
+        box-shadow: var(--ff-shadow-lg) !important;
+    }
+
+    .sidebar-overlay {
+        background-color: rgb(0 0 0 / 0.45);
+        backdrop-filter: blur(2px);
+    }
+
+    .sidebar-open .ff-bottom-nav {
+        visibility: hidden;
+    }
+}
+
+// ---------- phones ----------
+@media (max-width: 767.98px) {
+    // 16px inputs keep iOS from zooming in, 44px targets are easy to tap.
+    .form-control,
+    .form-select,
+    .input-group-text,
+    textarea {
+        font-size: 1rem;
+        min-height: 2.75rem;
+    }
+
+    .form-control-sm,
+    .form-select-sm {
+        min-height: 2.25rem;
+    }
+
+    .btn {
+        min-height: 2.5rem;
+    }
+
+    .btn-sm,
+    .btn-group-sm > .btn {
+        min-height: 2.25rem;
+    }
+
+    .col-form-label {
+        padding-bottom: 0.25rem;
+    }
+
+    .card {
+        --bs-card-border-radius: 0.875rem;
+        --bs-card-inner-border-radius: calc(0.875rem - 1px);
+        --bs-card-spacer-x: 1rem;
+        --bs-card-spacer-y: 1rem;
+        --bs-card-cap-padding-x: 1rem;
+    }
+
+    .card-body.p-0 > .table,
+    .card-body.p-0 > .table-responsive > .table,
+    .card-body.p-0 > form > .table {
+        > :not(caption) > * > *:first-child {
+            padding-left: 1rem;
+        }
+
+        > :not(caption) > * > *:last-child {
+            padding-right: 1rem;
+        }
+    }
+
+    // wide tables scroll inside their card instead of stretching the page
+    .card-body.p-0,
+    .card-body.table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .card-footer {
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            width: 100%;
+
+            > .btn {
+                flex: 1 1 auto;
+            }
+        }
+    }
+
+    // segmented controls scroll horizontally
+    .nav-tabs {
+        display: flex;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        scrollbar-width: none;
+
+        &::-webkit-scrollbar {
+            display: none;
+        }
+    }
+
+    .dropdown-menu {
+        --bs-dropdown-item-padding-y: 0.5rem;
+        --bs-dropdown-font-size: 0.9375rem;
+    }
+
+    .wide-chart {
+        height: 260px !important;
+    }
+
+    .medium-chart {
+        height: 220px !important;
+    }
+
+    // transaction forms: keep the save button within thumb reach
+    .tab-pane.active .ff-sticky-actions {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: calc(var(--ff-bottom-nav-height) + var(--ff-safe-bottom));
+        z-index: 1031;
+        padding: 0.625rem 0.75rem;
+        background-color: color-mix(in oklab, var(--ff-background) 92%, transparent);
+        backdrop-filter: blur(12px);
+        border-top: 1px solid var(--ff-border);
+        border-radius: 0;
+    }
+
+    body:has(.ff-sticky-actions) .app-content {
+        padding-bottom: 5.5rem;
+    }
+}
+
+// ---------- modals become bottom sheets on phones ----------
+@media (max-width: 575.98px) {
+    .modal-dialog {
+        margin: 0;
+        min-height: 100%;
+        display: flex;
+        align-items: flex-end;
+    }
+
+    .modal.fade .modal-dialog {
+        transform: translateY(100%);
+        transition: transform 0.25s ease-out;
+    }
+
+    .modal.show .modal-dialog {
+        transform: none;
+    }
+
+    .modal-content {
+        width: 100%;
+        max-height: 92dvh;
+        border-radius: 1rem 1rem 0 0;
+        border-bottom: 0;
+        padding-bottom: var(--ff-safe-bottom);
+    }
+
+    .modal-body {
+        overflow-y: auto;
+    }
+
+    .modal-footer {
+        > .btn {
+            flex: 1 1 0;
+        }
+    }
+}

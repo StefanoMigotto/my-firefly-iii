@@ -1,6 +1,6 @@
 <li class="nav-item dropdown">
-    <a class="nav-link" data-bs-toggle="dropdown" href="#">
-        <em class="bi bi-person"></em>
+    <a class="nav-link" data-bs-toggle="dropdown" href="#" aria-label="{{ __('firefly.profile') }}">
+        <em class="bi bi-person-circle"></em>
     </a>
     <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
         <span class="dropdown-item dropdown-header">{{  Auth::user()->email  }}</span>

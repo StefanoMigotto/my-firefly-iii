@@ -1,10 +1,10 @@
-<table class="table table-valign-middle table-sm table-hover">
+<table class="table table-valign-middle table-sm table-hover tx-list mb-0">
     @foreach($transactions as $transaction)
 <tr>
-    <td class="w-10">
-        <x-elements.transaction-type-icon :type="$transaction['transaction_type_type']" />
+    <td class="tx-col-icon w-10">
+        <span class="tx-type-icon"><x-elements.transaction-type-icon :type="$transaction['transaction_type_type']" /></span>
     </td>
-    <td>
+    <td class="tx-col-desc">
         @if('' !== (string) $transaction['transaction_group_title'])
             <small>{{ $transaction['transaction_group_title'] }}:</small>
         @endif
@@ -12,7 +12,7 @@
             {{ $transaction['description'] }}
         </a>
     </td>
-    <td class="text-end w-30">
+    <td class="tx-col-amount text-end w-30">
         <span class="small">
             <x-generic.amount :transaction="$transaction" />
         </span>

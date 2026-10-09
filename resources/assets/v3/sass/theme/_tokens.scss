@@ -1,0 +1,161 @@
+/*!
+ * _tokens.scss
+ * Copyright (c) 2026 james@firefly-iii.org
+ *
+ * This file is part of Firefly III (https://github.com/firefly-iii).
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+// Design tokens in the spirit of shadcn/ui (zinc palette + Firefly III blue).
+// Everything else in the theme reads these custom properties, so light and dark
+// mode only differ here. The Bootstrap / AdminLTE runtime variables are remapped
+// onto the tokens as well, so existing markup picks them up automatically.
+
+:root,
+[data-bs-theme="light"] {
+    --ff-background: #ffffff;
+    --ff-foreground: #09090b;
+    --ff-card: #ffffff;
+    --ff-popover: #ffffff;
+    --ff-muted: #f4f4f5;
+    --ff-muted-foreground: #71717a;
+    --ff-accent: #f4f4f5;
+    --ff-border: #e4e4e7;
+    --ff-input: #e4e4e7;
+    --ff-sidebar: #fafafa;
+    --ff-page: #fafafa;
+
+    --ff-primary: #1e6581;
+    --ff-primary-hover: #19566e;
+    --ff-primary-foreground: #ffffff;
+    --ff-ring: rgb(30 101 129 / 0.28);
+    --ff-ring-border: #4f8ea8;
+
+    --ff-destructive: #dc2626;
+    --ff-destructive-hover: #b91c1c;
+    --ff-positive: #15803d;
+    --ff-negative: #be123c;
+    --ff-transfer: #0e7490;
+    --ff-warning: #b45309;
+    --ff-positive-soft: #dcfce7;
+    --ff-negative-soft: #ffe4e6;
+    --ff-warning-soft: #fef3c7;
+    --ff-info-soft: #e0f2fe;
+
+    --ff-chart-1: #2b7fa6;
+    --ff-chart-2: #34b3a0;
+    --ff-chart-3: #f2a33a;
+    --ff-chart-4: #8b7cf6;
+    --ff-chart-5: #f06a7f;
+    --ff-chart-6: #a1a1aa;
+    --ff-chart-income: #34b3a0;
+    --ff-chart-expense: #f37761;
+
+    --ff-shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.04);
+    --ff-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --ff-shadow-md: 0 4px 12px -2px rgb(0 0 0 / 0.08), 0 2px 4px -1px rgb(0 0 0 / 0.05);
+    --ff-shadow-lg: 0 16px 40px -8px rgb(0 0 0 / 0.18), 0 4px 10px -2px rgb(0 0 0 / 0.06);
+
+    // Bootstrap runtime variables
+    --bs-body-bg: var(--ff-background);
+    --bs-body-bg-rgb: 255, 255, 255;
+    --bs-body-color: var(--ff-foreground);
+    --bs-body-color-rgb: 9, 9, 11;
+    --bs-emphasis-color: var(--ff-foreground);
+    --bs-secondary-color: var(--ff-muted-foreground);
+    --bs-secondary-bg: var(--ff-muted);
+    --bs-tertiary-bg: var(--ff-page);
+    --bs-tertiary-bg-rgb: 250, 250, 250;
+    --bs-border-color: var(--ff-border);
+    --bs-border-color-translucent: rgb(9 9 11 / 0.08);
+    --bs-heading-color: var(--ff-foreground);
+    --bs-link-color: var(--ff-primary);
+    --bs-link-color-rgb: 30, 101, 129;
+    --bs-link-hover-color: var(--ff-primary-hover);
+    --bs-link-hover-color-rgb: 25, 86, 110;
+    --bs-focus-ring-color: var(--ff-ring);
+}
+
+[data-bs-theme="dark"] {
+    --ff-background: #09090b;
+    --ff-foreground: #fafafa;
+    --ff-card: #111113;
+    --ff-popover: #141417;
+    --ff-muted: #27272a;
+    --ff-muted-foreground: #a1a1aa;
+    --ff-accent: #27272a;
+    --ff-border: #27272a;
+    --ff-input: #3f3f46;
+    --ff-sidebar: #111113;
+    --ff-page: #09090b;
+
+    --ff-primary: #4aa3c7;
+    --ff-primary-hover: #6bb6d4;
+    --ff-primary-foreground: #09090b;
+    --ff-ring: rgb(74 163 199 / 0.35);
+    --ff-ring-border: #4aa3c7;
+
+    --ff-destructive: #ef4444;
+    --ff-destructive-hover: #f87171;
+    --ff-positive: #4ade80;
+    --ff-negative: #fb7185;
+    --ff-transfer: #22d3ee;
+    --ff-warning: #fbbf24;
+    --ff-positive-soft: #14532d;
+    --ff-negative-soft: #4c0519;
+    --ff-warning-soft: #451a03;
+    --ff-info-soft: #082f49;
+
+    --ff-chart-1: #4aa3c7;
+    --ff-chart-2: #3cc4ae;
+    --ff-chart-3: #f5b04f;
+    --ff-chart-4: #9d90f8;
+    --ff-chart-5: #f47f92;
+    --ff-chart-6: #71717a;
+    --ff-chart-income: #3cc4ae;
+    --ff-chart-expense: #f58a76;
+
+    --ff-shadow-xs: none;
+    --ff-shadow-sm: none;
+    --ff-shadow-md: 0 8px 24px -4px rgb(0 0 0 / 0.6);
+    --ff-shadow-lg: 0 16px 48px -8px rgb(0 0 0 / 0.7);
+
+    --bs-body-bg: var(--ff-background);
+    --bs-body-bg-rgb: 9, 9, 11;
+    --bs-body-color: var(--ff-foreground);
+    --bs-body-color-rgb: 250, 250, 250;
+    --bs-emphasis-color: var(--ff-foreground);
+    --bs-secondary-color: var(--ff-muted-foreground);
+    --bs-secondary-bg: var(--ff-muted);
+    --bs-tertiary-bg: var(--ff-page);
+    --bs-tertiary-bg-rgb: 9, 9, 11;
+    --bs-border-color: var(--ff-border);
+    --bs-border-color-translucent: rgb(255 255 255 / 0.1);
+    --bs-heading-color: var(--ff-foreground);
+    --bs-link-color: var(--ff-primary);
+    --bs-link-color-rgb: 74, 163, 199;
+    --bs-link-hover-color: var(--ff-primary-hover);
+    --bs-link-hover-color-rgb: 107, 182, 212;
+    --bs-focus-ring-color: var(--ff-ring);
+}
+
+:root {
+    --ff-radius: 0.625rem;
+    --ff-radius-sm: 0.375rem;
+    --ff-radius-lg: 0.75rem;
+    --ff-header-height: 3.5rem;
+    --ff-bottom-nav-height: 4rem;
+    --ff-safe-bottom: env(safe-area-inset-bottom, 0px);
+}

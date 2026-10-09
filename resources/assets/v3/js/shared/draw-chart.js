@@ -26,6 +26,146 @@ import annotationPlugin from "chartjs-plugin-annotation";
 
 Chart.register(annotationPlugin);
 
+const prefersReducedMotion =
+    typeof globalThis.matchMedia === "function" && globalThis.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+function cssVariable(name, fallback) {
+    const value = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    return "" === value ? fallback : value;
+}
+
+/**
+ * Reads the chart colors from the theme tokens (see sass/theme/_tokens.scss),
+ * so charts follow light and dark mode.
+ */
+export function chartTheme() {
+    return {
+        foreground: cssVariable("--ff-foreground", "#09090b"),
+        muted: cssVariable("--ff-muted-foreground", "#71717a"),
+        border: cssVariable("--ff-border", "#e4e4e7"),
+        popover: cssVariable("--ff-popover", "#ffffff"),
+        card: cssVariable("--ff-card", "#ffffff"),
+        expense: cssVariable("--ff-chart-expense", "#f37761"),
+        income: cssVariable("--ff-chart-income", "#34b3a0"),
+        palette: [
+            cssVariable("--ff-chart-1", "#2b7fa6"),
+            cssVariable("--ff-chart-2", "#34b3a0"),
+            cssVariable("--ff-chart-3", "#f2a33a"),
+            cssVariable("--ff-chart-4", "#8b7cf6"),
+            cssVariable("--ff-chart-5", "#f06a7f"),
+            cssVariable("--ff-chart-6", "#a1a1aa"),
+        ],
+    };
+}
+
+export function withAlpha(color, alpha) {
+    const hex = color.replace("#", "");
+    if (6 !== hex.length) {
+        return color;
+    }
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+    return "rgba(" + r + ", " + g + ", " + b + ", " + alpha + ")";
+}
+
+/**
+ * Vertical gradient from the series color to transparent, used to fill line charts.
+ */
+function verticalGradient(color) {
+    return function (context) {
+        const chartArea = context.chart.chartArea;
+        if (!chartArea) {
+            return withAlpha(color, 0.12);
+        }
+        const gradient = context.chart.ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+        gradient.addColorStop(0, withAlpha(color, 0.28));
+        gradient.addColorStop(1, withAlpha(color, 0));
+        return gradient;
+    };
+}
+
+/**
+ * Global look & feel: smooth lines, no points until hover, rounded bars,
+ * light dashed grid and a card-like tooltip.
+ */
+function applyChartDefaults() {
+    const theme = chartTheme();
+    Chart.defaults.font.family = getComputedStyle(document.body).fontFamily;
+    Chart.defaults.font.size = 12;
+    Chart.defaults.color = theme.muted;
+    Chart.defaults.borderColor = theme.border;
+    Chart.defaults.animation.duration = prefersReducedMotion ? 0 : 400;
+    Chart.defaults.animation.easing = "easeOutQuart";
+    Chart.defaults.interaction.mode = "index";
+    Chart.defaults.interaction.intersect = false;
+
+    Chart.defaults.elements.line.borderWidth = 2.5;
+    Chart.defaults.elements.line.tension = 0.4;
+    Chart.defaults.elements.line.borderCapStyle = "round";
+    Chart.defaults.elements.line.borderJoinStyle = "round";
+    Chart.defaults.elements.point.radius = 0;
+    Chart.defaults.elements.point.hoverRadius = 5;
+    Chart.defaults.elements.point.hitRadius = 8;
+    Chart.defaults.elements.point.hoverBorderWidth = 2;
+    Chart.defaults.elements.bar.borderRadius = 5;
+    Chart.defaults.elements.bar.borderSkipped = "start";
+    Chart.defaults.elements.arc.borderWidth = 2;
+    Chart.defaults.elements.arc.borderColor = theme.card;
+    Chart.defaults.datasets.bar.maxBarThickness = 32;
+    Chart.defaults.datasets.bar.categoryPercentage = 0.7;
+    Chart.defaults.datasets.bar.barPercentage = 0.8;
+
+    const tooltip = Chart.defaults.plugins.tooltip;
+    tooltip.backgroundColor = theme.popover;
+    tooltip.titleColor = theme.foreground;
+    tooltip.bodyColor = theme.foreground;
+    tooltip.footerColor = theme.muted;
+    tooltip.borderColor = theme.border;
+    tooltip.borderWidth = 1;
+    tooltip.padding = 10;
+    tooltip.cornerRadius = 8;
+    tooltip.caretSize = 0;
+    tooltip.caretPadding = 8;
+    tooltip.boxWidth = 8;
+    tooltip.boxHeight = 8;
+    tooltip.boxPadding = 6;
+    tooltip.usePointStyle = true;
+    tooltip.titleFont = { weight: "600", size: 12 };
+    tooltip.bodyFont = { size: 12 };
+    tooltip.titleMarginBottom = 6;
+
+    const legend = Chart.defaults.plugins.legend.labels;
+    legend.usePointStyle = true;
+    legend.pointStyle = "circle";
+    legend.boxWidth = 8;
+    legend.boxHeight = 8;
+    legend.padding = 16;
+}
+
+/**
+ * Value axis with a subtle dashed grid and compact ticks.
+ */
+function valueAxis(extra) {
+    return {
+        grid: {
+            color: chartTheme().border,
+            drawTicks: false,
+        },
+        border: {
+            display: false,
+            dash: [3, 3],
+        },
+        ...extra,
+    };
+}
+
+function newChart(holder, config) {
+    applyChartDefaults();
+    const ctx = document.getElementById(holder).getContext("2d");
+    return new Chart(ctx, config);
+}
+
 let defaultChartOptions = {
     elements: {
         line: {
@@ -51,12 +191,22 @@ let defaultChartOptions = {
             grid: {
                 display: false,
             },
+            border: {
+                display: false,
+            },
+            ticks: {
+                maxRotation: 0,
+                autoSkipPadding: 16,
+            },
         },
-        y: {
+        y: valueAxis({
             display: true,
             beginAtZero: true,
-            ticks: {},
-        },
+            ticks: {
+                maxTicksLimit: 5,
+                padding: 8,
+            },
+        }),
     },
 };
 
@@ -204,12 +354,14 @@ function drawMultiCurrencyStackedColumnChart(url, holder, anonymous, colorData) 
                     let currencyCode = current.currency_code;
                     let axisId = "y" + currencyCode;
                     if (!Object.hasOwn(axes, axisId)) {
-                        axes[axisId] = {
+                        axes[axisId] = valueAxis({
                             id: axisId,
                             type: "linear",
                             stacked: true,
                             position: 0 === Object.keys(axes).length % 2 ? "left" : "right",
                             ticks: {
+                                maxTicksLimit: 5,
+                                padding: 8,
                                 callback: function (value) {
                                     if (anonymous) {
                                         value = "0";
@@ -217,7 +369,7 @@ function drawMultiCurrencyStackedColumnChart(url, holder, anonymous, colorData) 
                                     return formatMoney(value, currencyCode);
                                 },
                             },
-                        };
+                        });
                     }
                 }
             }
@@ -277,14 +429,10 @@ function drawMultiCurrencyStackedColumnChart(url, holder, anonymous, colorData) 
             }
 
             if (colorData) {
-                data = colorizeAllData(data);
+                data = colorizeAllData(data, "bar");
             }
 
-            // add a marker to the chart if defined.
-
-            // lineChart
-            const ctx = document.getElementById(holder).getContext("2d");
-            new Chart(ctx, {
+            newChart(holder, {
                 type: "bar",
                 data: data,
                 options: options,
@@ -380,11 +528,13 @@ function drawMultiCurrencyLineChart(url, holder, anonymous, drawTodayMarker, col
                     //let currencyCode = current.currency_code;
                     let axisId = "y" + currentCurrencyCode;
                     if (!Object.hasOwn(axes, axisId)) {
-                        axes[axisId] = {
+                        axes[axisId] = valueAxis({
                             id: axisId,
                             type: "linear",
                             position: 0 === Object.keys(axes).length % 2 ? "left" : "right",
                             ticks: {
+                                maxTicksLimit: 5,
+                                padding: 8,
                                 callback: function (value) {
                                     if (anonymous) {
                                         value = "0";
@@ -392,7 +542,7 @@ function drawMultiCurrencyLineChart(url, holder, anonymous, drawTodayMarker, col
                                     return formatMoney(value, currentCurrencyCode);
                                 },
                             },
-                        };
+                        });
                     }
                 }
             }
@@ -429,7 +579,7 @@ function drawMultiCurrencyLineChart(url, holder, anonymous, drawTodayMarker, col
             }
 
             if (colorData) {
-                data = colorizeAllData(data);
+                data = colorizeAllData(data, "line");
             }
 
             // add a marker to the chart if defined.
@@ -459,22 +609,26 @@ function drawMultiCurrencyLineChart(url, holder, anonymous, drawTodayMarker, col
                             xMin: markDate,
                             xMax: markDate,
                             display: true,
-                            borderColor: "rgb(255, 0, 0)",
+                            borderColor: chartTheme().muted,
                             borderWidth: 1,
+                            borderDash: [4, 4],
                             label: {
                                 xAdjust: xAdjust,
                                 content: today,
                                 enabled: true,
                                 display: true,
-                                position: "center",
+                                position: "start",
+                                backgroundColor: chartTheme().foreground,
+                                color: chartTheme().card,
+                                borderRadius: 999,
+                                padding: { x: 8, y: 3 },
+                                font: { size: 11, weight: "600" },
                             },
                         },
                     },
                 };
             }
-            // lineChart
-            const ctx = document.getElementById(holder).getContext("2d");
-            new Chart(ctx, {
+            newChart(holder, {
                 type: "line",
                 data: data,
                 options: options,
@@ -532,14 +686,11 @@ function drawSingleCurrencyLineChart(url, holder, anonymous) {
                 return;
             }
 
-            // TODO colorize data?
-            // if (colorData) {
-            //     data = colorizeData(data);
-            // }
+            if (Array.isArray(data.datasets)) {
+                data = colorizeAllData(data, "line");
+            }
 
-            // lineChart
-            const ctx = document.getElementById(holder).getContext("2d");
-            new Chart(ctx, {
+            newChart(holder, {
                 type: "line",
                 data: data,
                 options: options,
@@ -553,42 +704,42 @@ function drawSingleCurrencyLineChart(url, holder, anonymous) {
         });
 }
 
-const colors = [
-    [18, 124, 175], // bg-sky, 0
-    [179, 71, 190], // fuchsia, 1
-    [18, 130, 125], // bg-teal, 2
-    [165, 103, 16], // bg-amber, 3
-    [95, 127, 15], // bg-olive, 4
-    [200, 78, 16], // bg-orange, 5
-    [111, 96, 234], // indigo, 6
-    [205, 56, 141], // bg-pink, 7
-];
-
-function colorizeAllData(data) {
-    let transparency = 0.8;
+function colorizeAllData(data, type) {
+    const theme = chartTheme();
+    const count = data.datasets.length;
     for (let i in data.datasets) {
         if (Object.hasOwn(data.datasets, i)) {
-            let index = i % colors.length;
-            if (data.datasets[i].label.startsWith("budgeted")) {
-                index = 0;
-                transparency = 0.5;
+            const dataset = data.datasets[i];
+            const label = String(dataset.label ?? "");
+            let color = theme.palette[i % theme.palette.length];
+            let fillColor = color;
+
+            // budget overview: spent is solid, what is left is a pale version of
+            // the same color and overspending stands out in the expense color.
+            if (label.startsWith("budgeted") || label.startsWith("spent")) {
+                color = theme.palette[0];
+                fillColor = color;
             }
-            if (data.datasets[i].label.startsWith("overspent")) {
-                index = 5;
-                transparency = 0.5;
+            if (label.startsWith("left")) {
+                color = theme.palette[0];
+                fillColor = withAlpha(color, 0.22);
             }
-            if (data.datasets[i].label.startsWith("spent")) {
-                index = 5;
-                transparency = 0.5;
+            if (label.startsWith("overspent")) {
+                color = theme.expense;
+                fillColor = color;
             }
-            if (data.datasets[i].label.startsWith("left")) {
-                index = 2;
-                transparency = 0.5;
+
+            dataset.borderColor = color;
+            dataset.pointBackgroundColor = color;
+            dataset.pointHoverBackgroundColor = color;
+            dataset.pointHoverBorderColor = theme.card;
+            if ("line" === type) {
+                dataset.backgroundColor = verticalGradient(color);
+                dataset.fill = count <= 3 ? "origin" : false;
+                continue;
             }
-            let color = colors[index];
-            // grab color from colors, use modulo to make sure we don't go out of bounds.
-            data.datasets[i].backgroundColor = "rgba(" + color.join(",") + ", " + transparency + ")";
-            data.datasets[i].borderColor = "rgba(" + color.join(",") + ", 1)";
+            dataset.backgroundColor = fillColor;
+            dataset.borderWidth = 0;
         }
     }
     return data;

@@ -122,7 +122,7 @@
                 <div class="card-body">
                     @include('partials.form.transaction.submission-options')
                 </div>
-                <div class="card-footer">
+                <div class="card-footer ff-sticky-actions">
                     <div class="row">
                         <div class="col text-end">
                             <div class="btn-group">

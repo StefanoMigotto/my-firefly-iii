@@ -8,18 +8,11 @@
     x-data="sidebar"
 >
     <li class="nav-item search-xl">
-        <form action="{{ route('search.index') }}" method="get" class="pb-2">
-            <div class="form-row align-items-center">
-                <div class="col-auto">
-                    <div class="input-group mb-2">
-                    <label class="sr-only" for="searchInput">{{ trans('firefly.searchPlaceholder') }}</label>
-                    <input autocomplete="off" type="text" id="searchInput" name="search" class="form-control" placeholder="{{ trans('firefly.searchPlaceholder') }}" value="{{ $query ?? '' }}" spellcheck="false">
-                        <div class="input-group-append">
-                            <button type='submit' name='go' id='search-btn' class="btn btn-outline-secondary"><span class="bi bi-search"></span></button>
-                        </div>
-                </div>
-            </div>
-            </div>
+        <form action="{{ route('search.index') }}" method="get" class="ff-sidebar-search" role="search">
+            <label class="visually-hidden" for="searchInput">{{ trans('firefly.searchPlaceholder') }}</label>
+            <em class="bi bi-search" aria-hidden="true"></em>
+            <input autocomplete="off" type="search" id="searchInput" name="search" class="form-control" placeholder="{{ trans('firefly.searchPlaceholder') }}" value="{{ $query ?? '' }}" spellcheck="false">
+            <button type="submit" name="go" id="search-btn" class="visually-hidden">{{ __('firefly.search') }}</button>
         </form>
     </li>
     <li class="nav-item search-xs" style="display:none;">
@@ -34,7 +27,7 @@
             <p>{{ __('firefly.dashboard') }}</p>
         </a>
     </li>
-    <li class="nav-header text-uppercase">{{ __('firefly.financial_control') }}</li>
+    <li class="nav-header">{{ __('firefly.financial_control') }}</li>
     <li class="nav-item">
         <a href="{{ route('budgets.index') }}" class="nav-link {{ menu_item_active_partial('budgets.') }}">
             <em class="nav-icon bi bi-pie-chart"></em>
@@ -59,7 +52,7 @@
             </p>
         </a>
     </li>
-    <li class="nav-header text-uppercase">{{ __('firefly.accounting') }}</li>
+    <li class="nav-header">{{ __('firefly.accounting') }}</li>
 
     <li class="nav-item {{ menu_open_partial('transactions.') }}">
         <a href="#" class="nav-link">
@@ -135,7 +128,7 @@
             @endif
         </ul>
     </li>
-    <li class="nav-header text-uppercase">{{ __('firefly.organization') }}</li>
+    <li class="nav-header">{{ __('firefly.organization') }}</li>
     <li class="nav-item {{ menu_open_partial('accounts.') }}">
         <a href="#" class="nav-link">
             <em class="nav-icon bi bi-credit-card"></em>
@@ -203,7 +196,7 @@
     </li>
 
 
-    <li class="nav-header text-uppercase">{{ __('firefly.others') }}</li>
+    <li class="nav-header">{{ __('firefly.others') }}</li>
     <li class="nav-item">
         <a href="{{ route('currencies.index') }}" class="nav-link {{ menu_item_active_partial('currencies.') }}">
             <em class="nav-icon bi bi-currency-euro"></em>

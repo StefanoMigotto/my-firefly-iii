@@ -32,6 +32,13 @@ class ChartColour
      * @var array
      */
     public static $colours = [
+        // theme palette (see resources/assets/v3/sass/theme/_tokens.scss)
+        [43, 127, 166],
+        [52, 179, 160],
+        [242, 163, 58],
+        [139, 124, 246],
+        [240, 106, 127],
+        [161, 161, 170],
         [53, 124, 165],
         [0, 141, 76],
         [219, 139, 11],
@@ -56,6 +63,6 @@ class ChartColour
         $index %= count(self::$colours);
         $row = self::$colours[$index];
 
-        return sprintf('rgba(%d, %d, %d, 0.7)', $row[0], $row[1], $row[2]);
+        return sprintf('rgba(%d, %d, %d, 0.9)', $row[0], $row[1], $row[2]);
     }
 }

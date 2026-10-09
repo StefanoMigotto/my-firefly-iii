@@ -1,4 +1,4 @@
-<table class="table table-valign-middle table-sm table-hover">
+<table class="table table-valign-middle table-sm table-hover tx-list">
     <thead>
     <tr>
         @if($showCategory && $showBudget)
@@ -22,7 +22,7 @@
                     @endif
             </td>
        @endif
-        <td class="d-xs-none text-end">
+        <td class="d-none d-md-table-cell text-end">
             <!-- Single button -->
             <div class="action-menu d-none"> <!-- d-none -->
                 <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="top_action_menu" data-bs-toggle="dropdown" aria-expanded="false">
@@ -35,28 +35,28 @@
                 </ul>
             </div>
         </td>
-        <td class="d-xs-none text-end">
+        <td class="d-none d-md-table-cell text-end">
             <input id="list_ALL" value="1" name="select-all" type="checkbox" class="select-all form-check-inline"/>
         </td>
     </tr>
-    <tr>
-        <th class="d-xs-none">&nbsp;</th>
+    <tr class="tx-head">
+        <th class="tx-col-icon">&nbsp;</th>
         <th>{{ trans('list.description') }}</th>
         <th class="text-end">{{ trans('list.amount') }}</th>
         @if(get_app_configuration('use_running_balance', true))
-            <th class="text-end">{{ trans('list.running_balance') }}</th>
+            <th class="text-end d-none d-md-table-cell">{{ trans('list.running_balance') }}</th>
         @endif
-        <th>{{ trans('list.date') }}</th>
-        <th>{{ trans('list.source_account') }}</th>
-        <th>{{ trans('list.destination_account') }}</th>
+        <th class="d-none d-md-table-cell">{{ trans('list.date') }}</th>
+        <th class="d-none d-md-table-cell">{{ trans('list.source_account') }}</th>
+        <th class="d-none d-md-table-cell">{{ trans('list.destination_account') }}</th>
         @if($showCategory)
-            <th class="d-xs-none">{{ trans('list.category') }}</th>
+            <th class="d-none d-md-table-cell">{{ trans('list.category') }}</th>
         @endif
         @if($showBudget)
-            <th class="d-xs-none">{{ trans('list.budget') }}</th>
+            <th class="d-none d-md-table-cell">{{ trans('list.budget') }}</th>
         @endif
-        <th class="d-xs-none">&nbsp;</th><!-- actions -->
-        <th class="d-xs-none">&nbsp;</th><!-- checkbox -->
+        <th class="d-none d-md-table-cell">&nbsp;</th><!-- actions -->
+        <th class="d-none d-md-table-cell">&nbsp;</th><!-- checkbox -->
     </tr>
     </thead>
     <tbody>
@@ -96,7 +96,7 @@
             @if(!$showCategory && !$showBudget)
                 <td colspan="4" class="top-light-border">&nbsp;</td>
             @endif
-        <td class="top-light-border d-xs-none text-end">
+        <td class="top-light-border d-none d-md-table-cell text-end">
             <div class=""> <!-- d-none ? -->
                 <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="group_menu_{{ $group['id'] }}" data-bs-toggle="dropdown" aria-expanded="false">{{ __('firefly.actions') }} <span class="caret"></span></button>
                 <ul class="dropdown-menu" aria-labelledby="group_menu_{{ $group['id'] }}">
@@ -107,7 +107,7 @@
                 </ul>
             </div>
         </td>
-        <td class="top-light-border d-xs-none">&nbsp;</td><!-- would have checkbox -->
+        <td class="top-light-border d-none d-md-table-cell">&nbsp;</td><!-- would have checkbox -->
     </tr>
     @endif
     @foreach($group['transactions'] as $index => $transaction)
@@ -116,10 +116,10 @@
             @php $className = 'bottom-light-border'; @endphp
        @endif
     <tr data-date="{{ $transaction['date']->format('Y-m-d') }}" data-count="{{ $group['count'] }}" data-id="{{ $group['id'] }}">
-        <td class="d-xs-none {{ $className }}">
-            <x-elements.transaction-type-icon :type="$transaction['transaction_type_type']" />
+        <td class="tx-col-icon {{ $className }}">
+            <span class="tx-type-icon"><x-elements.transaction-type-icon :type="$transaction['transaction_type_type']" /></span>
         </td>
-        <td class="{{ $className }}">
+        <td class="tx-col-desc {{ $className }}">
             @if($transaction['reconciled'])
                 <span class="bi bi-check"></span>
             @endif
@@ -136,8 +136,9 @@
             @if(1 === $group['count'])
                 </a>
             @endif
+            <span class="tx-meta d-md-none">{{ $transaction['date']->isoFormat($monthAndDayFormat) }} · {{ $transaction['source_account_name'] }} → {{ $transaction['destination_account_name'] }}</span>
         </td>
-        <td class="{{ $className }} text-end">
+        <td class="tx-col-amount {{ $className }} text-end">
             <x-elements.transaction-amount
                 :type="$transaction['transaction_type_type']"
                 :amount="['amount' => $transaction['amount'], 'currency_id' => $transaction['currency_id'], 'currency_symbol' => $transaction['currency_symbol'], 'currency_decimal_places' => $transaction['currency_decimal_places']]"
@@ -148,7 +149,7 @@
             />
         </td>
         @if(get_app_configuration('use_running_balance', true))
-        <td class=" {{ $className }} text-end">
+        <td class="tx-col-balance d-none d-md-table-cell {{ $className }} text-end">
             <x-elements.transaction-running-balance
                 :balance-dirty="($transaction['source_balance_dirty'] ?? false) || ($transaction['destination_balance_dirty'] ?? false)"
                 :currency="['symbol' => $transaction['currency_symbol'],'decimal_places' => $transaction['currency_decimal_places']]"
@@ -160,10 +161,10 @@
             />
         </td>
         @endif
-        <td class="{{ $className }}">
+        <td class="tx-col-date d-none d-md-table-cell {{ $className }}">
             {{ $transaction['date']->isoFormat($monthAndDayFormat) }}
         </td>
-        <td class="{{ $className }}">
+        <td class="d-none d-md-table-cell {{ $className }}">
             @if('Cash account' === $transaction['source_account_type'])
                 <span class="text-success">({{ __('firefly.cash') }})</span>
             @else
@@ -171,7 +172,7 @@
                title="{{ $transaction['source_account_iban'] ?? $transaction['source_account_name'] }}">{{ $transaction['source_account_name'] }}</a>
             @endif
         </td>
-        <td class="{{ $className }}">
+        <td class="d-none d-md-table-cell {{ $className }}">
             @if('Cash account' == $transaction['destination_account_type'])
                 <span class="text-success">({{ __('firefly.cash') }})</span>
             @else
@@ -179,14 +180,14 @@
             @endif
         </td>
         @if($showCategory)
-            <td class="d-xs-none {{ $className }}">
+            <td class="d-none d-md-table-cell {{ $className }}">
                 @if(null !== $transaction['category_id'])
                     <a href="{{ route('categories.show', [$transaction['category_id']]) }}" title="{{ $transaction['category_name'] }}">{{ $transaction['category_name'] }}</a>
                 @endif
             </td>
         @endif
         @if($showBudget)
-            <td class="d-xs-none {{ $className }}">
+            <td class="d-none d-md-table-cell {{ $className }}">
                 @if(null !== $transaction['budget_id'])
                 <a href="{{ route('budgets.show', [$transaction['budget_id']]) }}"
                    title="{{ $transaction['budget_name'] }}">{{ $transaction['budget_name'] }}</a>
@@ -195,7 +196,7 @@
         @endif
 
         @if(1 === $group['count'])
-        <td class="d-xs-none {{ $className }} text-end">
+        <td class="d-none d-md-table-cell {{ $className }} text-end">
                 <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="journal_menu_{{ $transaction['transaction_journal_id'] }}" data-bs-toggle="dropdown" aria-expanded="false">{{ __('firefly.actions') }} <span class="caret"></span></button>
                 <ul class="dropdown-menu" aria-labelledby="journal_menu_{{ $transaction['transaction_journal_id'] }}">
                     <li><a class="dropdown-item" href="{{ route('transactions.edit', [$group['id']]) }}?_from={{ urlencode($FF3_FROM) }}"><span class="bi bi-pencil"></span> {{ __('firefly.edit') }}</a></li>
@@ -212,11 +213,11 @@
 
         @endif
         @if(1 !== $group['count'])
-        <td class="d-xs-none {{ $className }}">
+        <td class="d-none d-md-table-cell {{ $className }}">
             &nbsp;
         </td>
         @endif
-        <td class="d-xs-none {{ $className }}">
+        <td class="d-none d-md-table-cell {{ $className }}">
             @if($transaction['transaction_type_type'] !== 'Reconciliation' and $transaction['transaction_type_type'] !== 'Opening balance' and $transaction['transaction_type_type'] !== 'Liability credit')
             <div class="text-end">
                 <input id="list_{{ $transaction['transaction_journal_id'] }}"
@@ -254,7 +255,7 @@
                 @endif
             </td>
         @endif
-        <td class="d-xs-none text-end">
+        <td class="d-none d-md-table-cell text-end">
             <!-- Single button -->
             <div class="action-menu d-none"> <!-- d-none -->
                 <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="bottom_action_menu" data-bs-toggle="dropdown" aria-expanded="false">
@@ -267,7 +268,7 @@
                 </ul>
             </div>
         </td>
-        <td class="d-xs-none text-end">
+        <td class="d-none d-md-table-cell text-end">
             <input id="list_ALL_bottom" value="1" name="select-all" type="checkbox" class="select-all form-check-inline"/>
         </td>
     </tr>
