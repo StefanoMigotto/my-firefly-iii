@@ -22,6 +22,95 @@
     <a href="https://docs.firefly-iii.org/explanation/more-information/donations/#donations">🙏 Donate</a>
   </p>
 
+> [!NOTE]
+> **Questo è un fork personale di [Firefly III](https://github.com/firefly-iii/firefly-iii)** con una nuova interfaccia in stile [shadcn/ui](https://ui.shadcn.com) e un'usabilità migliorata da smartphone.
+> Le modifiche sono nel branch [`feature/shadcn-restyle`](https://github.com/StefanoMigotto/my-firefly-iii/tree/feature/shadcn-restyle). Dopo questa sezione trovi il README originale del progetto.
+
+## ✨ Nuova interfaccia: restyle shadcn + mobile
+
+<p align="center">
+  <img src=".github/assets/img/restyle/desktop-dashboard-light.png" alt="Dashboard desktop, tema chiaro" width="100%">
+</p>
+
+<table>
+  <tr>
+    <td width="50%"><img src=".github/assets/img/restyle/desktop-dashboard-dark.png" alt="Dashboard desktop, tema scuro"></td>
+    <td width="50%"><img src=".github/assets/img/restyle/desktop-transactions-light.png" alt="Lista transazioni desktop"></td>
+  </tr>
+  <tr>
+    <td align="center"><sub>Dashboard · tema scuro</sub></td>
+    <td align="center"><sub>Transazioni · tutte le colonne da tablet in su</sub></td>
+  </tr>
+</table>
+
+### Da smartphone
+
+<p align="center">
+  <img src=".github/assets/img/restyle/mobile-dashboard-light.png" alt="Dashboard smartphone, tema chiaro" width="240">
+  &nbsp;
+  <img src=".github/assets/img/restyle/mobile-transactions-light.png" alt="Transazioni smartphone" width="240">
+  &nbsp;
+  <img src=".github/assets/img/restyle/mobile-dashboard-dark.png" alt="Dashboard smartphone, tema scuro" width="240">
+</p>
+
+<sub>Gli screenshot usano dati di esempio.</sub>
+
+### Cosa cambia
+
+**Stile (shadcn/ui)**
+- Nuovi design token per tema chiaro e scuro (palette zinc + blu Firefly `#1e6581`), font **Inter**, bordi sottili, angoli arrotondati e ombre leggere.
+- Restyling di pulsanti, card, campi, tabelle, menu a tendina, modali, schede (diventano un controllo a segmenti), badge, paginazione, barre di avanzamento, autocomplete, calendario e tour guidato.
+- Menu laterale più pulito con ricerca integrata, header fisso con sfondo sfocato, pagina di login rinnovata.
+
+**Dashboard**
+- Card dei numeri chiave con titolo, icona, valore e nota.
+- Saldi dei conti con area sfumata e **spese per categoria** in un grafico a ciambella con totale al centro e legenda (importo e percentuale).
+- **Entrate e uscite degli ultimi 6 mesi** con barre arrotondate.
+- **Budget come barre di avanzamento** (speso / previsto, rimanente, eccesso in rosso).
+- Ultime transazioni per conto, abbonamenti e salvadanai.
+
+**Grafici "smooth" in tutto il sito**
+- Tutti i grafici usano **Chart.js 4**: le pagine dei conti, dei budget, delle categorie e dei report passano da Chart.js 2.7.
+- Curve morbide con area sfumata, punti visibili solo al passaggio del mouse, griglia tratteggiata, tooltip in stile card, barre arrotondate, ciambelle al posto delle torte. Palette unica, anche in tema scuro.
+
+**Usabilità da smartphone**
+- **Barra di navigazione in basso** (Dashboard, Transazioni, **+ Nuova**, Budget, Altro) e menu laterale a scomparsa.
+- **Liste transazioni a schede**: descrizione, data e conti sotto, importo in evidenza; le colonne secondarie compaiono da tablet in su.
+- Campi da 16px (niente zoom automatico su iOS), tastierino decimale per gli importi, aree di tocco più grandi.
+- **Pulsante Salva fisso in basso** nel modulo delle transazioni.
+- Modali come "bottom sheet", calendario a un mese, numeri chiave in griglia 2×2.
+
+### File principali
+
+| Cosa | Dove |
+|---|---|
+| Tema (token, componenti, layout, mobile, dashboard) | [`resources/assets/v3/sass/theme/`](https://github.com/StefanoMigotto/my-firefly-iii/tree/feature/shadcn-restyle/resources/assets/v3/sass/theme) |
+| Layout, barra in basso, menu laterale | [`resources/views/layout/v3/session.blade.php`](https://github.com/StefanoMigotto/my-firefly-iii/blob/feature/shadcn-restyle/resources/views/layout/v3/session.blade.php), [`resources/views/components/layout/`](https://github.com/StefanoMigotto/my-firefly-iii/tree/feature/shadcn-restyle/resources/views/components/layout) |
+| Dashboard | [`resources/views/index.blade.php`](https://github.com/StefanoMigotto/my-firefly-iii/blob/feature/shadcn-restyle/resources/views/index.blade.php), [`resources/assets/v3/js/pages/dashboard/`](https://github.com/StefanoMigotto/my-firefly-iii/tree/feature/shadcn-restyle/resources/assets/v3/js/pages/dashboard) |
+| Grafici della dashboard (Chart.js 4) | [`resources/assets/v3/js/shared/draw-chart.js`](https://github.com/StefanoMigotto/my-firefly-iii/blob/feature/shadcn-restyle/resources/assets/v3/js/shared/draw-chart.js) |
+| Grafici delle altre pagine (Chart.js 4) | [`public/v1/js/ff/charts.js`](https://github.com/StefanoMigotto/my-firefly-iii/blob/feature/shadcn-restyle/public/v1/js/ff/charts.js), [`public/v1/js/ff/charts.defaults.js`](https://github.com/StefanoMigotto/my-firefly-iii/blob/feature/shadcn-restyle/public/v1/js/ff/charts.defaults.js) |
+
+### Installazione su un'istanza esistente
+
+Il fork si basa su **Firefly III 6.7.7**: usalo su un'installazione della stessa versione.
+
+1. Compila il frontend (serve Node.js):
+   ```bash
+   cd resources/assets/v3 && npm ci && npm run build
+   ```
+2. Copia sul server i file modificati e la cartella `public/build`. In alternativa usa l’archivio già pronto [`firefly-restyle.tar.gz`](https://github.com/StefanoMigotto/my-firefly-iii/blob/feature/shadcn-restyle/firefly-restyle.tar.gz) del branch:
+   ```bash
+   cd /opt/firefly && tar --no-same-owner -xzf /tmp/firefly-restyle.tar.gz
+   chown -R www-data:www-data public resources/views app/Support
+   php artisan view:clear && php artisan cache:clear
+   ```
+3. Riavvia il web server e ricarica la pagina con Ctrl+F5.
+
+> [!WARNING]
+> Gli aggiornamenti ufficiali di Firefly III sovrascrivono queste modifiche: dopo ogni aggiornamento vanno riapplicate.
+
+---
+
 ## Welcome to Firefly III 🥳
 
 "Firefly III" is a (self-hosted) manager for your personal finances. It can help you keep track of your expenses and income, so you can spend less and save more. Firefly III supports the use of budgets, categories and tags. Using a bunch of tools, you can import data. It also has many neat financial reports available.
