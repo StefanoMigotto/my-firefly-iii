@@ -241,9 +241,9 @@
     @if($location)
         <script src="v1/lib/leaflet/leaflet.js?v={{ $FF_BUILD_TIME }}" nonce="{{ $JS_NONCE }}"></script>
     @endif
-     <script src="v1/js/lib/Chart.bundle.min.js?v={{ $FF_BUILD_TIME }}"
+     <script src="v1/js/lib/chart.umd.min.js?v={{ $FF_BUILD_TIME }}"
             nonce="{{ $JS_NONCE }}"></script>
-     <script src="v1/js/lib/chartjs-plugin-annotation.min.js?v={{ $FF_BUILD_TIME }}"
+     <script src="v1/js/lib/chartjs-plugin-annotation-3.min.js?v={{ $FF_BUILD_TIME }}"
             nonce="{{ $JS_NONCE }}"></script>
      <script src="v1/js/ff/charts.defaults.js?v={{ $FF_BUILD_TIME }}" nonce="{{ $JS_NONCE }}"></script>
      <script src="v1/js/ff/charts.js?v={{ $FF_BUILD_TIME }}" nonce="{{ $JS_NONCE }}"></script>

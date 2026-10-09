@@ -71,6 +71,7 @@ $primary: #1e6581;
 @use "theme/components";
 @use "theme/layout";
 @use "theme/mobile";
+@use "theme/dashboard";
 @import "shepherd.js/dist/css/shepherd.css";
 
 // for sortable tables

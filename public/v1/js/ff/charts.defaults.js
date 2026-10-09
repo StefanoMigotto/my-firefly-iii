@@ -66,31 +66,46 @@ function formatLabel(str, maxwidth) {
     return sections;
 }
 
+/*
+ Options use the Chart.js 4 format. The look & feel (colors, grid, tooltip)
+ is set globally in charts.js.
+ */
 var defaultChartOptions = {
-
+    responsive: true,
+    maintainAspectRatio: false,
     elements: {
         line: {
             cubicInterpolationMode: 'monotone'
         }
     },
     scales: {
-        xAxes: [
-            {
-                gridLines: {
-                    display: false
-                },
-                ticks: {
-                    // break ticks when too long.
-                    callback: function (value, index, values) {
-                        return formatLabel(value, 20);
-                    }
+        x: {
+            grid: {
+                display: false
+            },
+            border: {
+                display: false
+            },
+            ticks: {
+                // break ticks when too long.
+                callback: function (value) {
+                    return formatLabel(this.getLabelForValue(value), 20);
                 }
             }
-        ],
-        yAxes: [{
+        },
+        y: {
             display: true,
+            beginAtZero: true,
+            grid: {
+                drawTicks: false
+            },
+            border: {
+                display: false,
+                dash: [3, 3]
+            },
             ticks: {
                 maxTicksLimit: 5,
+                padding: 8,
                 callback: function (tickValue) {
                     "use strict";
                     if (anonymous) {
@@ -98,38 +113,44 @@ var defaultChartOptions = {
                     }
                     // use first symbol or null:
                     return accounting.formatMoney(tickValue);
-                },
-                beginAtZero: true
-            }
-
-        }]
-    },
-    tooltips: {
-        mode: 'label',
-        callbacks: {
-            label: function (tooltipItem, data) {
-                "use strict";
-                var string = accounting.formatMoney(tooltipItem.yLabel, data.datasets[tooltipItem.datasetIndex].currency_symbol);
-                if (anonymous) {
-                    string = accounting.formatMoney(0);
                 }
-                return data.datasets[tooltipItem.datasetIndex].label + ': ' + string;
+            }
+        }
+    },
+    plugins: {
+        tooltip: {
+            callbacks: {
+                label: function (context) {
+                    "use strict";
+                    var string = accounting.formatMoney(context.parsed.y, context.dataset.currency_symbol);
+                    if (anonymous) {
+                        string = accounting.formatMoney(0);
+                    }
+                    return ' ' + context.dataset.label + ': ' + string;
+                }
             }
         }
     }
 };
 
 var pieOptionsWithCurrency = {
-    tooltips: {
-        callbacks: {
-            label: function (tooltipItem, data) {
-                "use strict";
-                var value = data.datasets[0].data[tooltipItem.index];
-                var string = accounting.formatMoney(value, data.datasets[tooltipItem.datasetIndex].currency_symbol[tooltipItem.index]);
-                if (anonymous) {
-                    string = accounting.formatMoney(0);
+    cutout: '68%',
+    interaction: {
+        mode: 'nearest',
+        intersect: true
+    },
+    plugins: {
+        tooltip: {
+            callbacks: {
+                label: function (context) {
+                    "use strict";
+                    var value = context.dataset.data[context.dataIndex];
+                    var string = accounting.formatMoney(value, context.dataset.currency_symbol[context.dataIndex]);
+                    if (anonymous) {
+                        string = accounting.formatMoney(0);
+                    }
+                    return ' ' + context.label + ': ' + string;
                 }
-                return data.labels[tooltipItem.index] + ': ' + string;
             }
         }
     },
@@ -138,16 +159,23 @@ var pieOptionsWithCurrency = {
 };
 
 var defaultPieOptions = {
-    tooltips: {
-        callbacks: {
-            label: function (tooltipItem, data) {
-                "use strict";
-                var value = data.datasets[0].data[tooltipItem.index];
-                var string = accounting.formatMoney(value);
-                if (anonymous) {
-                    string = accounting.formatMoney(0);
+    cutout: '68%',
+    interaction: {
+        mode: 'nearest',
+        intersect: true
+    },
+    plugins: {
+        tooltip: {
+            callbacks: {
+                label: function (context) {
+                    "use strict";
+                    var value = context.dataset.data[context.dataIndex];
+                    var string = accounting.formatMoney(value);
+                    if (anonymous) {
+                        string = accounting.formatMoney(0);
+                    }
+                    return ' ' + context.label + ': ' + string;
                 }
-                return data.labels[tooltipItem.index] + ': ' + string;
             }
         }
     },
@@ -156,16 +184,23 @@ var defaultPieOptions = {
 };
 
 var neutralDefaultPieOptions = {
-    tooltips: {
-        callbacks: {
-            label: function (tooltipItem, data) {
-                "use strict";
-                var value = data.datasets[0].data[tooltipItem.index];
-                var string = accounting.formatMoney(value, '¤');
-                if(anonymous) {
-                    string = accounting.formatMoney(0);
+    cutout: '68%',
+    interaction: {
+        mode: 'nearest',
+        intersect: true
+    },
+    plugins: {
+        tooltip: {
+            callbacks: {
+                label: function (context) {
+                    "use strict";
+                    var value = context.dataset.data[context.dataIndex];
+                    var string = accounting.formatMoney(value, '¤');
+                    if (anonymous) {
+                        string = accounting.formatMoney(0);
+                    }
+                    return ' ' + context.label + ': ' + string;
                 }
-                return data.labels[tooltipItem.index] + ': ' + string;
             }
         }
     },

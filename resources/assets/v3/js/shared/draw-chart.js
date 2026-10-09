@@ -788,3 +788,202 @@ function formatLabel(str, maxWidth) {
 
     return sections;
 }
+
+function currentLocale() {
+    return String(window.__localeId__ ?? "en_US").replace("_", "-");
+}
+
+/**
+ * Formats an amount with a currency symbol (some chart endpoints only return the symbol).
+ */
+function formatWithSymbol(amount, symbol, anonymous) {
+    const value = anonymous ? 0 : amount;
+    const number = new Intl.NumberFormat(currentLocale(), {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+    }).format(value);
+    return ("" === String(symbol ?? "") ? "" : symbol + " ") + number;
+}
+
+function showNoData(holder) {
+    const el = document.getElementById(holder);
+    if (null === el) {
+        return;
+    }
+    const parent = el.parentElement;
+    parent.innerHTML = "";
+    parent.classList.add("ff-chart-empty");
+    parent.innerText = i18next.t("firefly.no_data_for_chart");
+}
+
+/**
+ * Doughnut chart with a total in the middle and an HTML legend (name, amount, share).
+ * Reads data in the "multiSet" format used by the chart/category/frontpage endpoint.
+ * Everything after the five largest slices is grouped as "other".
+ */
+export function drawCategoryDonut(url, holder, settings) {
+    window.axios
+        .get(url)
+        .then((response) => {
+            const data = response.data;
+            if (
+                null === data ||
+                typeof data !== "object" ||
+                !Array.isArray(data.datasets) ||
+                0 === data.datasets.length ||
+                !Array.isArray(data.labels)
+            ) {
+                showNoData(holder);
+                return;
+            }
+            const dataset = data.datasets[0];
+            const symbol = dataset.currency_symbol ?? "";
+            let items = data.labels
+                .map((label, index) => ({
+                    label: String(label),
+                    value: Math.abs(parseFloat(dataset.data[index]) || 0),
+                }))
+                .filter((item) => item.value > 0)
+                .sort((a, b) => b.value - a.value);
+            if (0 === items.length) {
+                showNoData(holder);
+                return;
+            }
+            if (items.length > 6) {
+                const rest = items.slice(5).reduce((sum, item) => sum + item.value, 0);
+                items = items.slice(0, 5).concat([{ label: settings.otherLabel, value: rest }]);
+            }
+            const total = items.reduce((sum, item) => sum + item.value, 0);
+            const theme = chartTheme();
+            const colors = items.map((item, index) => theme.palette[index % theme.palette.length]);
+
+            newChart(holder, {
+                type: "doughnut",
+                data: {
+                    labels: items.map((item) => item.label),
+                    datasets: [
+                        {
+                            data: items.map((item) => item.value),
+                            backgroundColor: colors,
+                            hoverOffset: 4,
+                            borderRadius: 4,
+                            spacing: 2,
+                            borderWidth: 0,
+                        },
+                    ],
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: "74%",
+                    interaction: { mode: "nearest", intersect: true },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: (context) =>
+                                    " " +
+                                    context.label +
+                                    ": " +
+                                    formatWithSymbol(context.parsed, symbol, settings.anonymous),
+                            },
+                        },
+                    },
+                },
+            });
+
+            const totalHolder = document.getElementById(settings.total);
+            if (null !== totalHolder) {
+                totalHolder.textContent = formatWithSymbol(total, symbol, settings.anonymous);
+            }
+            const legend = document.getElementById(settings.legend);
+            if (null === legend) {
+                return;
+            }
+            legend.innerHTML = "";
+            items.forEach((item, index) => {
+                const row = document.createElement("li");
+                const dot = document.createElement("span");
+                dot.className = "ff-legend-dot ff-legend-dot-" + (index % theme.palette.length);
+                const name = document.createElement("span");
+                name.className = "ff-legend-name";
+                name.textContent = item.label;
+                const amount = document.createElement("span");
+                amount.className = "ff-legend-value";
+                amount.textContent = formatWithSymbol(item.value, symbol, settings.anonymous);
+                const share = document.createElement("span");
+                share.className = "ff-legend-share";
+                share.textContent = Math.round((item.value / total) * 100) + "%";
+                row.append(dot, name, amount, share);
+                legend.appendChild(row);
+            });
+        })
+        .catch((error) => {
+            console.error(error);
+            showNoData(holder);
+        });
+}
+
+/**
+ * Grouped bars with income and expenses per month (api/v1/chart/balance/balance).
+ */
+export function drawIncomeExpenseChart(url, holder, settings) {
+    window.axios
+        .get(url)
+        .then((response) => {
+            const all = response.data;
+            if (!Array.isArray(all) || 0 === all.length) {
+                showNoData(holder);
+                return;
+            }
+            // use the first currency that has data.
+            const earned = all.find((set) => "earned" === set.label);
+            const spent = all.find((set) => "spent" === set.label && set.currency_id === earned?.currency_id);
+            if (typeof earned === "undefined" || typeof spent === "undefined") {
+                showNoData(holder);
+                return;
+            }
+            const usePrimary =
+                window.store.get("convert_to_primary") && earned.currency_code !== earned.primary_currency_code;
+            const key = usePrimary ? "pc_entries" : "entries";
+            const currencyCode = usePrimary ? earned.primary_currency_code : earned.currency_code;
+            const dates = Object.keys(earned[key]);
+            const monthFormat = new Intl.DateTimeFormat(currentLocale(), { month: "short" });
+            const theme = chartTheme();
+
+            const options = structuredClone(defaultChartOptions);
+            options.scales.x.ticks = { maxRotation: 0 };
+            options.scales.y.ticks.callback = (value) => formatMoney(settings.anonymous ? 0 : value, currencyCode);
+            options.plugins.tooltip.callbacks.label = (context) =>
+                " " +
+                context.dataset.label +
+                ": " +
+                formatMoney(settings.anonymous ? 0 : context.parsed.y, currencyCode);
+
+            newChart(holder, {
+                type: "bar",
+                data: {
+                    labels: dates.map((date) => monthFormat.format(new Date(date))),
+                    datasets: [
+                        {
+                            label: settings.earnedLabel,
+                            data: dates.map((date) => Math.abs(parseFloat(earned[key][date]) || 0)),
+                            backgroundColor: theme.income,
+                            borderWidth: 0,
+                        },
+                        {
+                            label: settings.spentLabel,
+                            data: dates.map((date) => Math.abs(parseFloat(spent[key][date]) || 0)),
+                            backgroundColor: theme.expense,
+                            borderWidth: 0,
+                        },
+                    ],
+                },
+                options: options,
+            });
+        })
+        .catch((error) => {
+            console.error(error);
+            showNoData(holder);
+        });
+}

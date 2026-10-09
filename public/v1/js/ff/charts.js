@@ -55,14 +55,10 @@ for (var i = 0; i < colourSet.length; i++) {
     fillColors.push("rgba(" + colourSet[i][0] + ", " + colourSet[i][1] + ", " + colourSet[i][2] + ", 0.5)");
 }
 
-Chart.defaults.global.legend.display = false;
-Chart.defaults.global.animation.duration = 0;
-Chart.defaults.global.responsive = true;
-Chart.defaults.global.maintainAspectRatio = false;
-
 /*
  Look & feel that matches the theme tokens (sass/theme/_tokens.scss):
- smooth lines, no points until hover, dashed grid and a card-like tooltip.
+ smooth lines, no points until hover, rounded bars, dashed grid and a card-like tooltip.
+ This is Chart.js 4 (v1/js/lib/chart.umd.min.js).
  */
 function themeColor(name, fallback) {
     var value = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
@@ -76,55 +72,90 @@ function themeColor(name, fallback) {
     var foreground = themeColor('--ff-foreground', '#09090b');
     var popover = themeColor('--ff-popover', '#ffffff');
     var card = themeColor('--ff-card', '#ffffff');
+    var reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    Chart.defaults.global.defaultFontFamily = getComputedStyle(document.body).fontFamily;
-    Chart.defaults.global.defaultFontColor = muted;
-    Chart.defaults.global.defaultFontSize = 12;
-    Chart.defaults.global.hover.mode = 'index';
-    Chart.defaults.global.hover.intersect = false;
+    Chart.defaults.responsive = true;
+    Chart.defaults.maintainAspectRatio = false;
+    Chart.defaults.font.family = getComputedStyle(document.body).fontFamily;
+    Chart.defaults.font.size = 12;
+    Chart.defaults.color = muted;
+    Chart.defaults.borderColor = border;
+    Chart.defaults.animation.duration = reducedMotion ? 0 : 400;
+    Chart.defaults.animation.easing = 'easeOutQuart';
+    Chart.defaults.interaction.mode = 'index';
+    Chart.defaults.interaction.intersect = false;
 
-    Chart.defaults.global.elements.line.tension = 0.4;
-    Chart.defaults.global.elements.line.borderWidth = 2.5;
-    Chart.defaults.global.elements.line.borderCapStyle = 'round';
-    Chart.defaults.global.elements.point.radius = 0;
-    Chart.defaults.global.elements.point.hoverRadius = 5;
-    Chart.defaults.global.elements.point.hitRadius = 8;
-    Chart.defaults.global.elements.point.hoverBorderWidth = 2;
-    Chart.defaults.global.elements.rectangle.borderWidth = 0;
-    Chart.defaults.global.elements.arc.borderWidth = 2;
-    Chart.defaults.global.elements.arc.borderColor = card;
+    Chart.defaults.elements.line.tension = 0.4;
+    Chart.defaults.elements.line.borderWidth = 2.5;
+    Chart.defaults.elements.line.borderCapStyle = 'round';
+    Chart.defaults.elements.line.borderJoinStyle = 'round';
+    Chart.defaults.elements.point.radius = 0;
+    Chart.defaults.elements.point.hoverRadius = 5;
+    Chart.defaults.elements.point.hitRadius = 8;
+    Chart.defaults.elements.point.hoverBorderWidth = 2;
+    Chart.defaults.elements.bar.borderRadius = 5;
+    Chart.defaults.elements.bar.borderSkipped = 'start';
+    Chart.defaults.elements.bar.borderWidth = 0;
+    Chart.defaults.elements.arc.borderWidth = 2;
+    Chart.defaults.elements.arc.borderColor = card;
+    Chart.defaults.elements.arc.borderRadius = 4;
+    Chart.defaults.datasets.bar.maxBarThickness = 32;
+    Chart.defaults.datasets.bar.categoryPercentage = 0.7;
+    Chart.defaults.datasets.bar.barPercentage = 0.8;
 
-    Chart.defaults.global.tooltips.mode = 'index';
-    Chart.defaults.global.tooltips.intersect = false;
-    Chart.defaults.global.tooltips.backgroundColor = popover;
-    Chart.defaults.global.tooltips.titleFontColor = foreground;
-    Chart.defaults.global.tooltips.bodyFontColor = foreground;
-    Chart.defaults.global.tooltips.footerFontColor = muted;
-    Chart.defaults.global.tooltips.borderColor = border;
-    Chart.defaults.global.tooltips.borderWidth = 1;
-    Chart.defaults.global.tooltips.xPadding = 10;
-    Chart.defaults.global.tooltips.yPadding = 10;
-    Chart.defaults.global.tooltips.cornerRadius = 8;
-    Chart.defaults.global.tooltips.caretSize = 0;
-    Chart.defaults.global.tooltips.multiKeyBackground = 'transparent';
+    Chart.defaults.plugins.legend.display = false;
+    Chart.defaults.plugins.legend.labels.usePointStyle = true;
+    Chart.defaults.plugins.legend.labels.pointStyle = 'circle';
+    Chart.defaults.plugins.legend.labels.boxWidth = 8;
+    Chart.defaults.plugins.legend.labels.boxHeight = 8;
 
-    Chart.defaults.global.legend.labels.usePointStyle = true;
-    Chart.defaults.global.legend.labels.boxWidth = 8;
+    var tooltip = Chart.defaults.plugins.tooltip;
+    tooltip.backgroundColor = popover;
+    tooltip.titleColor = foreground;
+    tooltip.bodyColor = foreground;
+    tooltip.footerColor = muted;
+    tooltip.borderColor = border;
+    tooltip.borderWidth = 1;
+    tooltip.padding = 10;
+    tooltip.cornerRadius = 8;
+    tooltip.caretSize = 0;
+    tooltip.caretPadding = 8;
+    tooltip.boxWidth = 8;
+    tooltip.boxHeight = 8;
+    tooltip.boxPadding = 6;
+    tooltip.usePointStyle = true;
+    tooltip.titleFont = {weight: '600', size: 12};
+    tooltip.bodyFont = {size: 12};
+    tooltip.titleMarginBottom = 6;
 
-    Chart.defaults.scale.gridLines.color = border;
-    Chart.defaults.scale.gridLines.zeroLineColor = border;
-    Chart.defaults.scale.gridLines.borderDash = [3, 3];
-    Chart.defaults.scale.gridLines.drawBorder = false;
-    Chart.defaults.scale.gridLines.drawTicks = false;
+    Chart.defaults.scale.grid.color = border;
     Chart.defaults.scale.ticks.padding = 8;
 })();
 
 /**
+ * Vertical gradient below a line, from the series color to transparent.
+ */
+function lineGradient(colour) {
+    "use strict";
+    return function (context) {
+        var area = context.chart.chartArea;
+        if (!area) {
+            return "rgba(" + colour[0] + ", " + colour[1] + ", " + colour[2] + ", 0.12)";
+        }
+        var gradient = context.chart.ctx.createLinearGradient(0, area.top, 0, area.bottom);
+        gradient.addColorStop(0, "rgba(" + colour[0] + ", " + colour[1] + ", " + colour[2] + ", 0.28)");
+        gradient.addColorStop(1, "rgba(" + colour[0] + ", " + colour[1] + ", " + colour[2] + ", 0)");
+        return gradient;
+    };
+}
+
+/**
  *
  * @param data
+ * @param chartType
  * @returns {{}}
  */
-function colorizeData(data, chartType, ctx) {
+function colorizeData(data, chartType) {
     var newData = {};
     newData.datasets = [];
     var card = themeColor('--ff-card', '#ffffff');
@@ -134,6 +165,7 @@ function colorizeData(data, chartType, ctx) {
         var dataset = data.datasets[loop];
         var colour = colourSet[loop % colourSet.length];
         var solid = "rgb(" + colour[0] + ", " + colour[1] + ", " + colour[2] + ")";
+        var type = dataset.type || chartType;
         dataset.borderColor = solid;
         dataset.pointBackgroundColor = solid;
         dataset.pointHoverBackgroundColor = solid;
@@ -142,16 +174,41 @@ function colorizeData(data, chartType, ctx) {
         dataset.fill = false;
 
         // line charts with only a few lines get a soft gradient below the line.
-        if ('line' === chartType && data.count <= 3 && ctx) {
-            var gradient = ctx.createLinearGradient(0, 0, 0, ctx.canvas.clientHeight || 300);
-            gradient.addColorStop(0, "rgba(" + colour[0] + ", " + colour[1] + ", " + colour[2] + ", 0.28)");
-            gradient.addColorStop(1, "rgba(" + colour[0] + ", " + colour[1] + ", " + colour[2] + ", 0)");
-            dataset.backgroundColor = gradient;
+        if ('line' === type && data.count <= 3) {
+            dataset.backgroundColor = lineGradient(colour);
             dataset.fill = 'origin';
         }
         newData.datasets.push(dataset);
     }
     return newData;
+}
+
+/**
+ * Money axis with optional currency symbol.
+ */
+function moneyAxis(extra, currencySymbol) {
+    "use strict";
+    return $.extend(true, {
+        display: true,
+        beginAtZero: true,
+        grid: {
+            drawTicks: false
+        },
+        border: {
+            display: false,
+            dash: [3, 3]
+        },
+        ticks: {
+            maxTicksLimit: 5,
+            padding: 8,
+            callback: function (tickValue) {
+                if (anonymous) {
+                    return accounting.formatMoney(0);
+                }
+                return accounting.formatMoney(tickValue, currencySymbol);
+            }
+        }
+    }, extra);
 }
 
 /**
@@ -180,57 +237,24 @@ function lineNoStartZeroChart(URL, container) {
     var colorData = true;
     var options = $.extend(true, {}, defaultChartOptions);
     var chartType = 'line';
-    options.scales.yAxes[0].ticks.beginAtZero = false;
+    options.scales.y.beginAtZero = false;
 
     drawAChart(URL, container, chartType, options, colorData);
 }
 
 /**
- * Overrules the currency the line chart is drawn in.
+ * Function to draw a line chart with another currency than the default one.
  *
  * @param URL
  * @param container
+ * @param currencySymbol
  */
 function otherCurrencyLineChart(URL, container, currencySymbol) {
     "use strict";
 
     var colorData = true;
-
-    var newOpts = {
-        scales: {
-            xAxes: [
-                {
-                    gridLines: {
-                        display: false
-                    },
-                    ticks: {
-                        // break ticks when too long.
-                        callback: function (value, index, values) {
-                            return formatLabel(value, 20);
-                        }
-                    }
-                }
-            ],
-            yAxes: [{
-                display: true,
-                //hello: 'fresh',
-                ticks: {
-                    callback: function (tickValue) {
-                        "use strict";
-                        // use first symbol or null:
-                        return accounting.formatMoney(tickValue);
-
-                    },
-                    beginAtZero: true
-                }
-            }]
-        },
-    };
-
-    //var options = $.extend(true, newOpts, defaultChartOptions);
-    var options = $.extend(true, defaultChartOptions, newOpts);
-
-    // console.log(options);
+    var options = $.extend(true, {}, defaultChartOptions);
+    options.scales.y = moneyAxis({}, currencySymbol);
     var chartType = 'line';
 
     drawAChart(URL, container, chartType, options, colorData);
@@ -247,39 +271,10 @@ function doubleYChart(URL, container) {
 
     var colorData = true;
     var options = $.extend(true, {}, defaultChartOptions);
-    options.scales.yAxes = [
-        // y axis 0:
-        {
-            display: true,
-            ticks: {
-                callback: function (tickValue) {
-                    "use strict";
-                    return accounting.formatMoney(tickValue);
-
-                },
-                beginAtZero: true
-            },
-            position: "left",
-            "id": "y-axis-0"
-        },
-        // and y axis 1:
-        {
-            display: true,
-            ticks: {
-                callback: function (tickValue) {
-                    "use strict";
-                    return accounting.formatMoney(tickValue);
-
-                },
-                beginAtZero: true
-            },
-            position: "right",
-            "id": "y-axis-1"
-        }
-
-    ];
-    options.stacked = true;
-    options.scales.xAxes[0].stacked = true;
+    delete options.scales.y;
+    options.scales['y-axis-0'] = moneyAxis({position: 'left', stacked: true});
+    options.scales['y-axis-1'] = moneyAxis({position: 'right', stacked: true, grid: {display: false}});
+    options.scales.x.stacked = true;
 
     var chartType = 'bar';
 
@@ -297,37 +292,9 @@ function doubleYNonStackedChart(URL, container) {
 
     var colorData = true;
     var options = $.extend(true, {}, defaultChartOptions);
-    options.scales.yAxes = [
-        // y axis 0:
-        {
-            display: true,
-            ticks: {
-                callback: function (tickValue) {
-                    "use strict";
-                    return accounting.formatMoney(tickValue);
-
-                },
-                beginAtZero: true
-            },
-            position: "left",
-            "id": "y-axis-0"
-        },
-        // and y axis 1:
-        {
-            display: true,
-            ticks: {
-                callback: function (tickValue) {
-                    "use strict";
-                    return accounting.formatMoney(tickValue);
-
-                },
-                beginAtZero: true
-            },
-            position: "right",
-            "id": "y-axis-1"
-        }
-
-    ];
+    delete options.scales.y;
+    options.scales['y-axis-0'] = moneyAxis({position: 'left'});
+    options.scales['y-axis-1'] = moneyAxis({position: 'right', grid: {display: false}});
     var chartType = 'bar';
 
     drawAChart(URL, container, chartType, options, colorData);
@@ -371,14 +338,12 @@ function columnChartCustomColours(URL, container) {
  */
 function stackedColumnChart(URL, container) {
     "use strict";
-    console.log('stackedColumnChart(' + URL + ', ' + container + ')');
 
     var colorData = true;
     var options = $.extend(true, {}, defaultChartOptions);
 
-    options.stacked = true;
-    options.scales.xAxes[0].stacked = true;
-    options.scales.yAxes[0].stacked = true;
+    options.scales.x.stacked = true;
+    options.scales.y.stacked = true;
 
     var chartType = 'bar';
 
@@ -395,8 +360,7 @@ function pieChart(URL, container) {
 
     var colorData = false;
     var options = $.extend(true, {}, defaultPieOptions);
-    options.cutoutPercentage = 68;
-    var chartType = 'pie';
+    var chartType = 'doughnut';
 
     drawAChart(URL, container, chartType, options, colorData);
 
@@ -412,11 +376,42 @@ function multiCurrencyPieChart(URL, container) {
 
     var colorData = false;
     var options = $.extend(true, {}, pieOptionsWithCurrency);
-    options.cutoutPercentage = 68;
-    var chartType = 'pie';
+    var chartType = 'doughnut';
 
     drawAChart(URL, container, chartType, options, colorData);
 
+}
+
+/**
+ * Line marking "today" (chartjs-plugin-annotation 3).
+ */
+function todayAnnotation() {
+    "use strict";
+    if (typeof drawVerticalLine === 'undefined' || '' === drawVerticalLine || !Chart.registry.plugins.get('annotation')) {
+        return null;
+    }
+    return {
+        annotations: {
+            today: {
+                type: 'line',
+                scaleID: 'x',
+                value: drawVerticalLine,
+                borderColor: themeColor('--ff-muted-foreground', '#71717a'),
+                borderWidth: 1,
+                borderDash: [4, 4],
+                label: {
+                    display: true,
+                    content: typeof todayText === 'undefined' ? '' : todayText.trim(),
+                    position: 'start',
+                    backgroundColor: themeColor('--ff-foreground', '#09090b'),
+                    color: themeColor('--ff-card', '#ffffff'),
+                    borderRadius: 999,
+                    padding: {x: 8, y: 3},
+                    font: {size: 11, weight: '600'}
+                }
+            }
+        }
+    };
 }
 
 /**
@@ -425,61 +420,38 @@ function multiCurrencyPieChart(URL, container) {
  * @param chartType
  * @param options
  * @param colorData
- * @param today
  */
 function drawAChart(URL, container, chartType, options, colorData) {
-    console.log('drawAChart(' + URL + ', ' + container + ')');
     var containerObj = document.getElementById(container);
     if (null === containerObj) {
-        console.log('Return because NULL');
         return;
     }
     if (containerObj.length === 0) {
-        console.log('Return because 0');
         return;
     }
     window.axios.get(URL).then(function (response) {
-        //console.log('GET drawAChart('+URL+', '+container+')');
         containerObj.classList.remove('general-chart-error');
         var data = response.data;
-        // if result is empty array, or the labels array is empty, show error.
-        // console.log(URL);
-        // console.log(data.length);
-        // console.log(typeof data.labels);
-        // console.log(data.labels.length);
         if (
-            // is undefined
             typeof data === 'undefined' ||
-            // is empty
             0 === data.length ||
-            // isn't empty but contains no labels
             (typeof data === 'object' && typeof data.labels === 'object' && 0 === data.labels.length)
         ) {
-            // console.log('NODATA drawAChart('+URL+', '+container+')');
-            // console.log(data);
-            // remove the chart container + parent
             var holder = document.getElementById(container).parentNode.parentNode;
             if (holder.classList.contains('card') || holder.classList.contains('card-body')) {
-                // console.log('found holder');
-                // find box-body:
                 var boxBody;
                 if (!holder.classList.contains('card-body')) {
-                    // console.log('Look for card body', holder.querySelector('.card-body').length);
                     boxBody = holder.querySelector('.card-body');
                 } else {
                     boxBody = holder;
                 }
-                // console.log('found box body', boxBody);
-                // boxBody.innerHtml = '<p><em>'+noDataForChart+'</em></p>';
-                boxBody.innerHTML = '<p><em>' + noDataForChart + '</em></p>';
-                //boxBody.empty().append($('<p>').append($('<em>').text(noDataForChart)));
+                boxBody.innerHTML = '<p class="text-muted mb-0"><em>' + noDataForChart + '</em></p>';
             }
-            // console.log('return');
             return;
         }
 
         if (colorData) {
-            data = colorizeData(data, chartType, document.getElementById(container).getContext("2d"));
+            data = colorizeData(data, chartType);
         }
 
         if (allCharts.hasOwnProperty(container)) {
@@ -487,47 +459,25 @@ function drawAChart(URL, container, chartType, options, colorData) {
             allCharts[container].data.labels = data.labels;
             allCharts[container].update();
         } else {
-            // new chart!
             var ctx = document.getElementById(container).getContext("2d");
-            var chartOpts = {
+            // charts in a fixed-height container fill it instead of keeping their aspect ratio.
+            if (containerObj.parentElement.classList.contains('ff-chart')) {
+                options.maintainAspectRatio = false;
+            }
+            var annotation = todayAnnotation();
+            if (null !== annotation) {
+                options.plugins = options.plugins || {};
+                options.plugins.annotation = annotation;
+            }
+            allCharts[container] = new Chart(ctx, {
                 type: chartType,
                 data: data,
-                options: options,
-                lineAtIndex: [],
-                annotation: {},
-            };
-            if (typeof drawVerticalLine !== 'undefined') {
-                if (drawVerticalLine !== '') {
-                    // draw line using annotation plugin.
-                    chartOpts.options.annotation = {
-                        annotations: [{
-                            type: 'line',
-                            id: 'a-line-1',
-                            mode: 'vertical',
-                            scaleID: 'x-axis-0',
-                            value: drawVerticalLine,
-                            borderColor: lineColor,
-                            borderWidth: 1,
-                            label: {
-                                backgroundColor: 'rgba(0,0,0,0)',
-                                fontFamily: "sans-serif",
-                                fontSize: 12,
-                                fontColor: lineTextColor,
-                                position: "right",
-                                xAdjust: -20,
-                                yAdjust: -125,
-                                enabled: true,
-                                content: todayText
-                            }
-                        }]
-                    };
-                }
-            }
-            allCharts[container] = new Chart(ctx, chartOpts);
+                options: options
+            });
         }
 
     }).catch(function (reason) {
-        // console.error('Add error because error with chart.', reason);
+        console.error(reason);
         document.getElementById(container).classList.add('general-chart-error');
     });
 }

@@ -26,7 +26,8 @@ import Alpine from "@alpinejs/csp";
 import Get from "../../api/model/piggy-bank/get.js";
 import formatMoney from "../../util/format-money.js";
 import { getVariable } from "../../store/get-variable.js";
-import { drawMultiCurrencyChart } from "../../shared/draw-chart.js";
+import { drawCategoryDonut, drawIncomeExpenseChart, drawMultiCurrencyChart } from "../../shared/draw-chart.js";
+import { loadBudgetList } from "./budget-list.js";
 import format from "../../util/format.js";
 
 let index = function () {
@@ -52,18 +53,48 @@ let index = function () {
                     true,
                 );
 
-                drawMultiCurrencyChart(
-                    "stacked-column",
-                    "api/v1/chart/budget/overview-with-limits?start=" +
-                        format(start, "yyyy-LL-dd") +
-                        "&end=" +
-                        format(end, "yyyy-LL-dd"),
-                    "budgets-chart",
-                    value,
-                    false,
-                    true,
-                );
+                this.drawDashboardWidgets(start, end, value);
             });
+        },
+        drawDashboardWidgets(start, end, anonymous) {
+            // labels come from the server-side translations (data attributes).
+            const labels = document.getElementById("dashboard-labels").dataset;
+
+            drawCategoryDonut("chart/category/frontpage", "categories-chart", {
+                legend: "categories-legend",
+                total: "categories-total",
+                otherLabel: labels.other,
+                anonymous: anonymous,
+            });
+
+            // income and expenses for the last six months, ending with the current period.
+            const sixMonthsAgo = new Date(start.getFullYear(), start.getMonth() - 5, 1);
+            drawIncomeExpenseChart(
+                "api/v1/chart/balance/balance?period=1M&start=" +
+                    format(sixMonthsAgo, "yyyy-LL-dd") +
+                    "&end=" +
+                    format(end, "yyyy-LL-dd"),
+                "income-expense-chart",
+                {
+                    earnedLabel: labels.earned,
+                    spentLabel: labels.spent,
+                    anonymous: anonymous,
+                },
+            );
+
+            loadBudgetList(
+                "api/v1/chart/budget/overview-with-limits?start=" +
+                    format(start, "yyyy-LL-dd") +
+                    "&end=" +
+                    format(end, "yyyy-LL-dd"),
+                "budget-list",
+                {
+                    leftLabel: labels.left,
+                    overspentLabel: labels.overspent,
+                    emptyText: labels.noBudgets,
+                    anonymous: anonymous,
+                },
+            );
         },
         loadPiggyBanks() {
             this.downloadPiggyBanks(1);

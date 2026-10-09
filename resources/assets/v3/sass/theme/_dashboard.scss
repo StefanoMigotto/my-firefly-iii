@@ -1,0 +1,392 @@
+/*!
+ * _dashboard.scss
+ * Copyright (c) 2026 james@firefly-iii.org
+ *
+ * This file is part of Firefly III (https://github.com/firefly-iii).
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+// Dashboard widgets: KPI cards, chart containers, doughnut legend and the
+// budget / piggy bank progress lists.
+
+.card-description {
+    margin: 0.125rem 0 0;
+    font-size: 0.8125rem;
+    color: var(--ff-muted-foreground);
+}
+
+.ff-dashboard-card {
+    height: calc(100% - 1rem);
+
+    > .card-header {
+        align-items: flex-start;
+        flex-wrap: nowrap;
+        padding-bottom: 0;
+
+        > div:first-child {
+            flex: 1 1 auto;
+            min-width: 0;
+        }
+
+        > .card-tools {
+            flex: 0 0 auto;
+        }
+    }
+
+    > .card-body {
+        display: flex;
+        flex-direction: column;
+        padding-top: 1rem;
+    }
+
+    // the main charts grow with the card so cards in a row line up
+    .ff-chart-lg,
+    .ff-chart-md {
+        flex: 1 1 auto;
+    }
+}
+
+// cards stacked in a column keep their natural height
+.ff-stack .ff-dashboard-card {
+    height: auto;
+}
+
+// ---------- KPI cards ----------
+.ff-kpi {
+    height: calc(100% - 1rem);
+
+    > .card-body {
+        display: flex;
+        flex-direction: column;
+        gap: 0.375rem;
+        padding: 1.125rem 1.25rem;
+    }
+}
+
+.ff-kpi-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.ff-kpi-title {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--ff-muted-foreground);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    &:hover {
+        color: var(--ff-foreground);
+    }
+}
+
+.ff-kpi-icon {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 999px;
+    font-size: 0.9375rem;
+}
+
+@each $index in 1, 2, 3, 4, 5, 6 {
+    .ff-kpi-icon-#{$index} {
+        color: var(--ff-chart-#{$index});
+        background-color: color-mix(in oklab, var(--ff-chart-#{$index}) 14%, transparent);
+    }
+}
+
+.ff-kpi-icon-negative {
+    color: var(--ff-negative);
+    background-color: var(--ff-negative-soft);
+}
+
+.ff-kpi-value {
+    font-size: 1.625rem;
+    line-height: 2.125rem;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    font-variant-numeric: tabular-nums;
+    min-height: 2.125rem;
+    overflow-wrap: anywhere;
+
+    .placeholder {
+        min-height: 1.5rem;
+        border-radius: var(--ff-radius-sm);
+    }
+}
+
+.ff-kpi-note {
+    font-size: 0.75rem;
+    color: var(--ff-muted-foreground);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    a {
+        color: inherit;
+    }
+}
+
+// ---------- chart containers ----------
+.ff-chart {
+    position: relative;
+    width: 100%;
+
+    > canvas {
+        position: relative;
+        z-index: 1;
+    }
+}
+
+.ff-chart-lg {
+    height: 300px;
+    min-height: 300px;
+}
+
+.ff-chart-md {
+    height: 260px;
+    min-height: 260px;
+}
+
+.ff-chart-donut {
+    height: 210px;
+    max-width: 240px;
+    margin: 0 auto 1.25rem;
+}
+
+.ff-chart-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 120px;
+    color: var(--ff-muted-foreground);
+    font-size: 0.875rem;
+    text-align: center;
+}
+
+// total in the middle of the doughnut
+.ff-donut-center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.ff-donut-total {
+    font-size: 1.25rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+}
+
+.ff-donut-caption {
+    font-size: 0.75rem;
+    color: var(--ff-muted-foreground);
+}
+
+// ---------- legends ----------
+.ff-legend {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+
+    li {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.8125rem;
+    }
+}
+
+.ff-legend-name {
+    flex: 1 1 auto;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ff-legend-value {
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.ff-legend-share {
+    width: 2.5rem;
+    text-align: right;
+    color: var(--ff-muted-foreground);
+    font-variant-numeric: tabular-nums;
+}
+
+.ff-legend-dot {
+    flex: 0 0 auto;
+    display: inline-block;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 999px;
+    background-color: var(--ff-chart-6);
+}
+
+@each $index in 0, 1, 2, 3, 4, 5 {
+    .ff-legend-dot-#{$index} {
+        background-color: var(--ff-chart-#{$index + 1});
+    }
+}
+
+.ff-legend-dot-income {
+    background-color: var(--ff-chart-income);
+}
+
+.ff-legend-dot-expense {
+    background-color: var(--ff-chart-expense);
+}
+
+.ff-legend-inline {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    font-size: 0.75rem;
+    color: var(--ff-muted-foreground);
+
+    > span {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+    }
+}
+
+// ---------- budget and piggy bank progress lists ----------
+.ff-budget-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.125rem;
+}
+
+.ff-budget-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+
+    + .ff-budget-row {
+        margin-top: 1.125rem;
+    }
+
+    .progress {
+        --bs-progress-height: 0.5rem;
+    }
+}
+
+.ff-budget-list > .ff-budget-row + .ff-budget-row {
+    margin-top: 0;
+}
+
+.ff-budget-top {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+    font-size: 0.875rem;
+}
+
+.ff-budget-name {
+    font-weight: 500;
+    color: var(--ff-foreground);
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+a.ff-budget-name:hover {
+    color: var(--ff-foreground);
+    text-decoration: underline;
+}
+
+.ff-budget-amounts {
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.ff-budget-note {
+    font-size: 0.75rem;
+    color: var(--ff-muted-foreground);
+}
+
+@media (max-width: 767.98px) {
+    .ff-chart-lg {
+        height: 240px;
+        min-height: 240px;
+    }
+
+    .ff-chart-md {
+        height: 220px;
+        min-height: 220px;
+    }
+
+    .ff-dashboard-card > .card-header {
+        flex-wrap: wrap;
+    }
+
+    .ff-kpi > .card-body {
+        padding: 0.875rem;
+    }
+
+    .ff-kpi-value {
+        font-size: 1.125rem;
+        line-height: 1.5rem;
+        min-height: 1.5rem;
+    }
+
+    .ff-kpi-icon {
+        width: 1.75rem;
+        height: 1.75rem;
+        font-size: 0.8125rem;
+    }
+
+    .ff-kpi-title {
+        font-size: 0.75rem;
+    }
+
+    .ff-dashboard-card .card-tools .btn:not(.dropdown-toggle) {
+        font-size: 0;
+        gap: 0;
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+
+        .bi {
+            font-size: 0.875rem;
+        }
+    }
+}
+
+.ff-chart-donut-sm {
+    height: 180px;
+    margin-bottom: 0;
+}

@@ -115,8 +115,8 @@
         var sourceChartUrl = '{{ route('chart.transactions.sourceAccounts', [$objectType, $start->format('Y-m-d'), $end->format('Y-m-d')]) }}';
 
     </script>
-     <script src="v1/js/lib/Chart.bundle.min.js?v={{ $FF_BUILD_TIME }}" nonce="{{ $JS_NONCE }}"></script>
-     <script src="v1/js/lib/chartjs-plugin-annotation.min.js?v={{ $FF_BUILD_TIME }}" nonce="{{ $JS_NONCE }}"></script>
+     <script src="v1/js/lib/chart.umd.min.js?v={{ $FF_BUILD_TIME }}" nonce="{{ $JS_NONCE }}"></script>
+     <script src="v1/js/lib/chartjs-plugin-annotation-3.min.js?v={{ $FF_BUILD_TIME }}" nonce="{{ $JS_NONCE }}"></script>
      <script src="v1/js/ff/charts.defaults.js?v={{ $FF_BUILD_TIME }}" nonce="{{ $JS_NONCE }}"></script>
      <script src="v1/js/ff/charts.js?v={{ $FF_BUILD_TIME }}" nonce="{{ $JS_NONCE }}"></script>
 

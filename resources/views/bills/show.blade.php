@@ -186,7 +186,7 @@
         var billCurrencySymbol = "{{ $convertToPrimary ? $primaryCurrency->symbol : $object['data']['currency']['symbol'] }}";
         var billUrl = '{{ route('chart.bill.single', [$object['data']['id']]) }}';
     </script>
-     <script src="v1/js/lib/Chart.bundle.min.js?v={{ $FF_BUILD_TIME }}" nonce="{{ $JS_NONCE }}"></script>
+     <script src="v1/js/lib/chart.umd.min.js?v={{ $FF_BUILD_TIME }}" nonce="{{ $JS_NONCE }}"></script>
      <script src="v1/js/ff/charts.defaults.js?v={{ $FF_BUILD_TIME }}" nonce="{{ $JS_NONCE }}"></script>
      <script src="v1/js/ff/charts.js?v={{ $FF_BUILD_TIME }}" nonce="{{ $JS_NONCE }}"></script>
      <script src="v1/js/ff/bills/show.js?v={{ $FF_BUILD_TIME }}" nonce="{{ $JS_NONCE }}"></script>
